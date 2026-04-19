@@ -8,7 +8,7 @@
 <style>
 :root{
   --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;--border:rgba(120,100,255,0.2);
-  --purple:#7c6dfa;--glow:rgba(124,109,250,0.3);
+  --purple:#7c6dfa;--glow:rgba(124,109,250,0.3);--pd:rgba(124,109,250,.12);
   --gold:#f5c200;--text:#e8e4ff;--muted:#7a749a;
   --hover:rgba(124,109,250,0.12);
   --F:'Rajdhani',sans-serif;--M:'JetBrains Mono',monospace;
@@ -24,38 +24,103 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 header{text-align:center;margin-bottom:1.5rem;animation:fD .6s ease both;}
 .gems{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:5px;}
 .gem{width:16px;height:16px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;}
-h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  color:#fff;text-shadow:0 0 40px var(--glow);}
 .tagline{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:var(--M);}
 
-.banner{display:none;border-radius:10px;padding:.6rem 1.2rem;margin-bottom:.9rem;font-family:var(--M);font-size:11px;text-align:center;}
+.banner{display:none;border-radius:10px;padding:.6rem 1.2rem;margin-bottom:.9rem;
+  font-family:var(--M);font-size:11px;letter-spacing:1px;text-align:center;}
 #b-offline{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#f87171;}
 #b-closed{background:rgba(124,109,250,.08);border:1px solid rgba(124,109,250,.2);color:var(--muted);}
 
-.dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;margin-bottom:1.4rem;}
+.dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);
+  border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;
+  margin-bottom:1.4rem;animation:fU .5s .1s ease both;}
 .db{display:flex;flex-direction:column;gap:4px;padding:0 1.6rem;}
 .db:not(:last-child){border-right:1px solid var(--border);}
 .dl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:var(--M);}
-.dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);}
+.dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);letter-spacing:1px;line-height:1.2;}
 .dv.gold{color:var(--gold);}
 
-.gw{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;overflow-x:auto;position:relative;margin-bottom:1.4rem;}
-.ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
-.spin{width:30px;height:30px;border:3px solid rgba(124,109,250,.2);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;}
+.gw{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:1.2rem;overflow-x:auto;position:relative;animation:fU .5s .2s ease both;}
+.ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.spin{width:30px;height:30px;border:3px solid rgba(124,109,250,.2);border-top-color:var(--purple);
+  border-radius:50%;animation:spin .8s linear infinite;}
+.ov-txt{font-family:var(--M);font-size:12px;color:var(--muted);letter-spacing:2px;}
 table{width:100%;border-collapse:collapse;}
-th{font-family:var(--M);font-size:11px;color:var(--muted);padding:6px 2px;border-bottom:1px solid var(--border);}
-.rl{font-family:var(--M);font-size:11px;color:var(--muted);padding:0 8px;text-align:right;}
-td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;font-family:var(--M);font-size:14px;font-weight:700;color:#fff;}
+th{font-family:var(--M);font-size:11px;color:var(--muted);padding:6px 2px;text-align:center;
+  letter-spacing:1px;border-bottom:1px solid var(--border);}
+.rl{font-family:var(--M);font-size:11px;color:var(--muted);padding:0 8px 0 0;text-align:right;white-space:nowrap;min-width:22px;}
+td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;
+  font-family:var(--M);font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;
+  transition:background .15s,transform .1s;}
+td.c:hover{background:var(--hover);transform:scale(1.05);z-index:2;border-color:var(--purple);}
 td.c.fl{animation:flash .9s ease forwards;}
 
-.h-item {background: var(--card2);border: 1px solid var(--border);border-radius: 8px;padding: 10px 15px;display: flex;justify-content: space-between;align-items: center;margin-bottom: 8px;}
-.h-time {font-family: var(--M); font-size: 13px; font-weight: 700; color: var(--gold);}
-.h-date {font-family: var(--M); font-size: 11px; color: var(--muted);}
-.h-badge {font-size: 9px; font-family: var(--M); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted);}
-.h-manual {color: var(--purple); border-color: var(--glow);}
+/* ── HISTORY ── */
+.hist-wrap{margin-top:1.6rem;animation:fU .5s .3s ease both;}
+.hist-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.9rem;flex-wrap:wrap;gap:.6rem;}
+.hist-title{font-family:var(--M);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.hist-controls{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.hc-label{font-family:var(--M);font-size:10px;letter-spacing:1px;color:var(--muted);white-space:nowrap;}
+.hc-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 10px;font-family:var(--M);font-size:12px;color:#fff;outline:none;
+  transition:border-color .2s;color-scheme:dark;}
+.hc-input:focus{border-color:var(--purple);}
+.hbtn{font-family:var(--F);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  border:1px solid var(--border);border-radius:7px;padding:6px 12px;background:transparent;
+  color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.hbtn:hover{background:var(--pd);border-color:var(--purple);color:#fff;}
 
-footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;color:var(--muted);}
+#hist-list{display:flex;flex-direction:column;gap:.75rem;}
+.hrec{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.hrec-hdr{display:flex;align-items:center;gap:.9rem;padding:.8rem 1.1rem;
+  cursor:pointer;user-select:none;transition:background .15s;flex-wrap:wrap;}
+.hrec-hdr:hover{background:rgba(124,109,250,.07);}
+.hrec-time{font-family:var(--M);font-size:13px;font-weight:700;color:var(--gold);}
+.hrec-date{font-family:var(--M);font-size:11px;color:var(--muted);}
+.hrec-tag{font-family:var(--M);font-size:10px;letter-spacing:2px;padding:2px 8px;border-radius:20px;
+  margin-left:auto;background:rgba(124,109,250,.12);color:var(--purple);border:1px solid rgba(124,109,250,.3);}
+.hrec-tag.manual{background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.3);}
+.hrec-arr{font-size:11px;color:var(--muted);transition:transform .2s;margin-left:.3rem;}
+.hrec-body{display:none;padding:.7rem .9rem .9rem;border-top:1px solid var(--border);}
+.hrec.open .hrec-body{display:block;}
+.hrec.open .hrec-arr{transform:rotate(180deg);}
+
+.mini-table{width:100%;border-collapse:collapse;}
+.mini-table th{font-family:var(--M);font-size:9px;color:var(--muted);padding:4px 1px;
+  text-align:center;border-bottom:1px solid var(--border);}
+.mini-table .mrl{font-family:var(--M);font-size:9px;color:var(--muted);padding:0 4px 0 0;text-align:right;}
+.mini-table td.mc{border:1px solid var(--border);text-align:center;padding:5px 1px;
+  font-family:var(--M);font-size:11px;font-weight:700;color:#fff;}
+.hist-empty{text-align:center;font-family:var(--M);font-size:12px;color:var(--muted);
+  padding:2.5rem;border:1px dashed var(--border);border-radius:13px;}
+
+footer{text-align:center;margin-top:1.6rem;font-family:var(--M);font-size:11px;
+  color:var(--muted);letter-spacing:1px;animation:fU .5s .4s ease both;}
+
+@keyframes fD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes fU{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes flash{0%{background:rgba(124,109,250,.6);color:var(--gold);} 100%{background:transparent;color:#fff;}}
+@keyframes flash{0%{background:rgba(124,109,250,.6);color:var(--gold);}
+  70%{background:rgba(124,109,250,.15);}100%{background:transparent;color:#fff;}}
+
+@media(max-width:620px){
+  body{padding:1.2rem .6rem;}
+  .dp{grid-template-columns:1fr 1fr;}
+  .db{padding:0 .9rem;}
+  .db:first-child{grid-column:span 2;border-right:none;
+    border-bottom:1px solid var(--border);padding-bottom:.8rem;margin-bottom:.1rem;}
+  .db:nth-child(2){border-right:1px solid var(--border);}
+  .dv{font-size:1.15rem;}
+  td.c{font-size:11px;padding:6px 1px;}th,.rl{font-size:9px;}
+  .gw{padding:.75rem .4rem;}
+  .hist-controls{gap:.4rem;}
+}
+@media(max-width:380px){td.c{font-size:9.5px;padding:5px 0;}.dv{font-size:1rem;}}
 </style>
 </head>
 <body>
@@ -66,35 +131,33 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;c
   </header>
   <div class="banner" id="b-offline">⚠ Connection lost — retrying…</div>
   <div class="banner" id="b-closed">🕘 Draw closed. Opens at 9:30 AM.</div>
-  
   <div class="dp">
     <div class="db"><span class="dl">Current Draw</span><span class="dv gold" id="cur-t">—</span></div>
     <div class="db"><span class="dl">Next Draw In</span><span class="dv" id="cd">—</span></div>
     <div class="db"><span class="dl">Next Draw At</span><span class="dv" id="nxt-t">—</span></div>
   </div>
-
   <div class="gw">
-    <div class="ov" id="ov"><div class="spin"></div><span class="ov-txt" style="font-family:var(--M); font-size:12px; color:var(--muted);">Loading Live Data…</span></div>
+    <div class="ov" id="ov"><div class="spin"></div><span class="ov-txt">Loading…</span></div>
     <table><thead id="th"></thead><tbody id="tb"></tbody></table>
   </div>
 
-  <div class="gw">
-    <div class="dl" style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span>Draw History</span>
-        <button onclick="resetFilter()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Show All</button>
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 10px; color: var(--muted);">FILTER DATE:</span>
-        <input type="date" id="hist-date-filter" onchange="loadHistory()" style="background: var(--card2); border: 1px solid var(--border); color: #fff; font-family: var(--M); font-size: 11px; padding: 4px 8px; border-radius: 6px; outline: none;">
+  <!-- HISTORY -->
+  <div class="hist-wrap">
+    <div class="hist-header">
+      <span class="hist-title">Draw History</span>
+      <div class="hist-controls">
+        <span class="hc-label">Filter Date:</span>
+        <input type="date" class="hc-input" id="h-date" onchange="applyFilter()">
+        <button class="hbtn" onclick="clearFilter()">↺ Show All</button>
       </div>
     </div>
-    <div id="hist-container"><div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">Loading history...</div></div>
+    <div id="hist-list"><div class="hist-empty">Loading history…</div></div>
   </div>
 
-  <footer>&copy; <span id="yr"></span> Lucky Draw — Entertainment only.</footer>
+  <footer>&copy; <span id="yr"></span> Lucky Draw — All results randomly generated for entertainment only.</footer>
 </div>
 <script>
+/* ── CONFIG ── */
 const LIVE_KEY = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
 const LIVE_BIN = '69e4a9f9aaba882197157ed4';
 const LIVE_URL = `https://api.jsonbin.io/v3/b/${LIVE_BIN}`;
@@ -102,48 +165,71 @@ const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15;
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-const pad = n => String(n).padStart(2,'0');
+/* ── TIME ── */
+const pad  = n => String(n).padStart(2,'0');
 const pad4 = n => String(n).padStart(4,'0');
-function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%12||12;return `${pad(h)}:${pad(m)} ${a}`;}
+function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%12||12;return`${pad(h)}:${pad(m)} ${a}`;}
+function fmtDate(d){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return`${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function fmtISO(d){return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
 function mod(d){return d.getHours()*60+d.getMinutes();}
 function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
 
 function slotKey(d){
-  const m=mod(d); if(m<DAY_START||m>=DAY_END) return null;
-  const idx=Math.floor((m-DAY_START)/SLOT); const sm=idx*SLOT+DAY_START;
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
+  const m=mod(d);
+  if(m<DAY_START||m>=DAY_END)return null;
+  const idx=Math.floor((m-DAY_START)/SLOT);
+  const sm=idx*SLOT+DAY_START;
+  const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
+  return`${y}-${mo}-${dd}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
 }
 
 function nextSlot(d){
-  const m=mod(d); let nm;
+  const m=mod(d);let nm;
   if(m<DAY_START){nm=DAY_START;}
   else if(m>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
-  else {nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START; if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}}
+  else{
+    nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START;
+    if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+  }
   const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
 }
 
+/* ── GRID ── */
+function genGrid(){return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));}
+
+/* ── BIN (viewer = read-only, NEVER writes history) ── */
 async function getBin(){
-  try{const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'}); if(!r.ok)throw 0; setOff(false); return await r.json();}
-  catch{setOff(true);return null;}
+  try{
+    const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
+    if(!r.ok)throw 0; setOff(false); return await r.json();
+  }catch{setOff(true);return null;}
 }
+/* Viewer only writes when bootstrapping for the first time (no admin present) */
 async function putBin(p){
-  try{const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});return r.ok;} catch{return false;}
+  try{await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});} catch{}
 }
 
+/* ── UI ── */
 function setOff(v){document.getElementById('b-offline').style.display=v?'block':'none';}
 function setClosed(v){document.getElementById('b-closed').style.display=v?'block':'none';}
 
 function buildTable(nums,flash){
   const th=document.getElementById('th'),tb=document.getElementById('tb');
   th.innerHTML='';tb.innerHTML='';
-  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
+  const hr=document.createElement('tr');
+  const c0=document.createElement('th');c0.style.minWidth='24px';hr.appendChild(c0);
   for(let c=0;c<10;c++){const t=document.createElement('th');t.textContent=String.fromCharCode(65+c);hr.appendChild(t);}
   th.appendChild(hr);
   for(let r=0;r<10;r++){
-    const tr=document.createElement('tr'); const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
+    const tr=document.createElement('tr');
+    const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
     for(let c=0;c<10;c++){
-      const td=document.createElement('td');td.className='c';td.textContent=(nums[r]||[])[c]||'----';
-      if(flash){td.style.animationDelay=`${(r*10+c)*5}ms`;td.classList.add('fl');}
+      const td=document.createElement('td');td.className='c';
+      td.textContent=(nums[r]||[])[c]||'----';
+      if(flash){td.style.animationDelay=`${(r*10+c)*9}ms`;td.classList.add('fl');}
       tr.appendChild(td);
     }
     tb.appendChild(tr);
@@ -151,80 +237,144 @@ function buildTable(nums,flash){
   document.getElementById('ov').style.display='none';
 }
 
-/* REPORT LOGIC */
-async function loadHistory() {
-  const container = document.getElementById('hist-container');
-  const dateFilter = document.getElementById('hist-date-filter').value;
-  const data = await getBin();
-  
-  if (!data || !data.history || data.history.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">No history data found in database.</div>';
-    return;
-  }
+/* ── HISTORY RENDER ── */
+let allHistory=[];
 
-  let history = data.history;
-  if(dateFilter) {
-    history = history.filter(h => h.drawTime.startsWith(dateFilter));
+function buildMiniTable(nums){
+  if(!nums||!nums.length)return'<span style="color:var(--muted);font-size:11px;">No data</span>';
+  let h='<table class="mini-table"><thead><tr><th style="min-width:18px;"></th>';
+  for(let c=0;c<10;c++)h+=`<th>${String.fromCharCode(65+c)}</th>`;
+  h+='</tr></thead><tbody>';
+  for(let r=0;r<10;r++){
+    h+=`<tr><td class="mrl">${r+1}</td>`;
+    for(let c=0;c<10;c++)h+=`<td class="mc">${(nums[r]||[])[c]||'----'}</td>`;
+    h+='</tr>';
   }
-  
-  history = [...history].reverse(); // Copy and reverse for newest first
+  return h+'</tbody></table>';
+}
 
-  if(history.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">No draws found for ${dateFilter}.</div>`;
-    return;
+function renderHistory(records){
+  const list=document.getElementById('hist-list');
+  if(!records.length){
+    list.innerHTML='<div class="hist-empty">No draws found for selected date.</div>';return;
   }
-
-  container.innerHTML = '';
-  history.forEach(item => {
-    const dt = new Date(item.drawTime);
-    const isManual = item.type === 'manual';
-    const div = document.createElement('div');
-    div.className = 'h-item';
-    div.innerHTML = `
-      <div><div class="h-time">${fmt(dt)}</div><div class="h-date">${dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
-      <div class="h-badge ${isManual?'h-manual':''}">${isManual?'Official':'Auto'}</div>`;
-    container.appendChild(div);
+  list.innerHTML='';
+  records.forEach(rec=>{
+    const dt=new Date(rec.drawTime);
+    const div=document.createElement('div');div.className='hrec';
+    const isManual=rec.type==='manual';
+    div.innerHTML=`
+      <div class="hrec-hdr" onclick="this.parentElement.classList.toggle('open')">
+        <span class="hrec-time">${fmt(dt)}</span>
+        <span class="hrec-date">${fmtDate(dt)}</span>
+        <span class="hrec-tag${isManual?' manual':''}">AUTO</span>
+        <span class="hrec-arr">▼</span>
+      </div>
+      <div class="hrec-body">${buildMiniTable(rec.numbers)}</div>`;
+    list.appendChild(div);
   });
 }
-function resetFilter(){ document.getElementById('hist-date-filter').value=''; loadHistory(); }
 
-let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
-
-async function doSwap(now,remote){
-  if(swapBusy)return; swapBusy=true;
-  const key=slotKey(now); const incoming=(remote?.next?.length)?remote.next:Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));
-  curNums=incoming; nxtNums=[]; curKey=key; nxtSlotDt=nextSlot(now);
-  document.getElementById('cur-t').textContent=fmt(now); buildTable(curNums,true);
-  let hist = remote?.history || [];
-  hist.push({ slotKey:key, drawTime:now.toISOString(), numbers:curNums, type:'auto' });
-  if(hist.length>200) hist.shift();
-  await putBin({current:curNums,next:[],currentDrawTime:now.toISOString(),slotKey:key,updatedAt:now.toISOString(),history:hist});
-  loadHistory(); setTimeout(()=>{swapBusy=false;},15000);
+function applyFilter(){
+  const dateVal=document.getElementById('h-date').value; // yyyy-mm-dd
+  if(!dateVal){renderHistory(allHistory);return;}
+  const filtered=allHistory.filter(h=>{
+    const d=new Date(h.drawTime);
+    return fmtISO(d)===dateVal;
+  });
+  renderHistory(filtered);
 }
 
+function clearFilter(){
+  document.getElementById('h-date').value='';
+  renderHistory(allHistory);
+}
+
+function loadHistoryFromData(data){
+  // Newest first, last 7 days by default
+  const raw=(data?.history||[]).slice().reverse();
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-6);cutoff.setHours(0,0,0,0);
+  allHistory=raw.filter(h=>new Date(h.drawTime)>=cutoff);
+  // Pre-set date input to today
+  const todayVal=fmtISO(new Date());
+  document.getElementById('h-date').value=todayVal;
+  applyFilter();
+}
+
+/* ── STATE ── */
+let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
+
+/* ── VIEWER SWAP: only re-renders, does NOT write history ── */
+async function doViewerSwap(now,remote){
+  if(swapBusy)return; swapBusy=true;
+  const key=slotKey(now);
+  const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
+  curNums=incoming; nxtNums=genGrid(); curKey=key; nxtSlotDt=nextSlot(now);
+  document.getElementById('cur-t').textContent=fmt(now);
+  buildTable(curNums,true);
+  // Viewer does NOT write to bin — admin owns history writes
+  setTimeout(()=>{swapBusy=false;},20000);
+}
+
+/* ── INIT ── */
 async function init(){
-  const now=new Date(); nxtSlotDt=nextSlot(now); setClosed(!inSess(now));
-  loadHistory();
+  const now=new Date(),ins=inSess(now),sk=slotKey(now);
+  nxtSlotDt=nextSlot(now); setClosed(!ins);
   const data=await getBin();
   if(data?.current?.length){
-    curNums=data.current; curKey=data.slotKey;
-    const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
-    document.getElementById('cur-t').textContent=fmt(dt); buildTable(curNums,false);
-    if(inSess(now) && slotKey(now)!==curKey && !swapBusy) await doSwap(now,data);
-  } else if(inSess(now)){ await doSwap(now,null); }
+    curNums=data.current; nxtNums=data.next?.length?data.next:genGrid(); curKey=data.slotKey||sk;
+    if(ins&&sk&&curKey&&curKey!==sk){await doViewerSwap(now,data);}
+    else{const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,false);}
+    loadHistoryFromData(data);
+  } else {
+    if(ins){
+      curNums=genGrid();nxtNums=genGrid();curKey=sk;
+      document.getElementById('cur-t').textContent=fmt(now);buildTable(curNums,false);
+      await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:sk,updatedAt:now.toISOString(),history:[]});
+    } else {
+      buildTable(Array.from({length:10},()=>Array(10).fill('----')),false);
+      document.getElementById('cur-t').textContent='Closed';
+      document.getElementById('ov').style.display='none';
+    }
+    loadHistoryFromData(data);
+  }
   setInterval(tick,1000);
 }
 
-function tick(){
-  const now=new Date(),ins=inSess(now),sk=slotKey(now); setClosed(!ins);
+/* ── TICK ── */
+async function tick(){
+  const now=new Date(),ins=inSess(now),sk=slotKey(now);
+  setClosed(!ins);
   if(nxtSlotDt){
     const diff=Math.max(0,Math.floor((nxtSlotDt-now)/1000));
-    document.getElementById('cd').textContent=ins?`${Math.floor(diff/3600)}h ${pad(Math.floor((diff%3600)/60))}m ${pad(diff%60)}s`:'—';
+    const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
+    document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
     document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
   }
-  if(ins && sk && sk!==curKey && !swapBusy){ getBin().then(d => doSwap(now,d)); }
-  if(Date.now()-lastPoll>5000){ lastPoll=Date.now(); getBin().then(d=>{ if(d && d.slotKey!==curKey){ curKey=d.slotKey; buildTable(d.current,true); loadHistory(); } }); }
+  // Boundary: slot key changed → re-render only (admin writes history)
+  if(ins&&sk&&sk!==curKey&&!swapBusy){
+    const data=await getBin();await doViewerSwap(now,data);return;
+  }
+  // Poll every 5s to sync current chart and history
+  if(Date.now()-lastPoll>5000){
+    lastPoll=Date.now();
+    const data=await getBin();
+    if(data){
+      if(data.next?.length)nxtNums=data.next;
+      // Another tab (admin) already swapped
+      if(data.slotKey&&data.slotKey!==curKey&&ins&&!swapBusy){
+        curKey=data.slotKey;curNums=data.current||curNums;
+        nxtNums=data.next?.length?data.next:genGrid();
+        nxtSlotDt=nextSlot(now);
+        const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+        document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,true);
+      }
+      // Refresh history
+      loadHistoryFromData(data);
+    }
+  }
 }
+
 init();
 </script>
 </body>
