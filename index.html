@@ -4,14 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lucky Draw — Live Chart</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0d0b1e;--card:#1a1640;--border:rgba(120,100,255,0.2);
     --purple:#7c6dfa;--purple-glow:rgba(124,109,250,0.3);
     --gold:#f5c200;--text:#e8e4ff;--text-muted:#7a749a;
     --cell-hover:rgba(124,109,250,0.12);
-    --font-display:'Rajdhani',sans-serif;--font-mono:'Share Tech Mono',monospace;
+    --font-display:'Rajdhani',sans-serif;
+    --font-mono:'JetBrains Mono',monospace; /* ← crisp, clear number font */
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;overflow-x:hidden;}
@@ -35,7 +36,14 @@
   table{width:100%;border-collapse:collapse;min-width:560px;}
   th{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:6px 4px;text-align:center;letter-spacing:1px;border-bottom:1px solid var(--border);}
   .row-label{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:0 10px 0 0;white-space:nowrap;}
-  td.cell{border:1px solid var(--border);text-align:center;padding:10px 4px;font-family:var(--font-mono);font-size:14px;color:var(--text);cursor:default;transition:background .15s,transform .1s;min-width:72px;}
+
+  /* NUMBER CELLS — JetBrains Mono, heavier weight for instant readability */
+  td.cell{
+    border:1px solid var(--border);text-align:center;padding:10px 4px;
+    font-family:var(--font-mono);font-size:15px;font-weight:700;
+    color:#fff;letter-spacing:1px;
+    cursor:default;transition:background .15s,transform .1s;min-width:72px;
+  }
   td.cell:hover{background:var(--cell-hover);transform:scale(1.04);z-index:2;border-color:var(--purple);}
   td.cell.new-flash{animation:cellFlash .7s ease;}
 
@@ -43,8 +51,8 @@
 
   @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-  @keyframes cellFlash{0%{background:rgba(124,109,250,.4)}100%{background:transparent}}
-  @media(max-width:600px){.draw-panel{flex-direction:column;align-items:flex-start;}td.cell{font-size:12px;padding:8px 2px;min-width:54px;}}
+  @keyframes cellFlash{0%{background:rgba(124,109,250,.5);color:var(--gold);}100%{background:transparent;color:#fff;}}
+  @media(max-width:600px){.draw-panel{flex-direction:column;align-items:flex-start;}td.cell{font-size:13px;padding:8px 2px;min-width:54px;}}
 </style>
 </head>
 <body>
@@ -84,21 +92,21 @@
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  let currentNumbers = [];   // what is shown right now
-  let nextNumbers    = [];   // staged for next slot
-  let nextDraw       = null;
-  let swapped        = false; // guard: only swap once per slot
+  let currentNumbers    = [];
+  let nextNumbers       = [];
+  let nextDraw          = null;
+  let swapped           = false;
+  let lastKnownDrawTime = null; // track the currentDrawTime from the bin
 
   const pad  = n => String(n).padStart(2,'0');
   const pad4 = n => String(n).padStart(4,'0');
 
   function formatTime(d){
     let h=d.getHours(), m=d.getMinutes();
-    const ap = h>=12?'PM':'AM'; h=h%12||12;
+    const ap=h>=12?'PM':'AM'; h=h%12||12;
     return `${pad(h)}:${pad(m)} ${ap}`;
   }
 
-  // Returns the Date of the upcoming 15-min boundary
   function getNextSlot(){
     const now=new Date(), n=new Date(now);
     const rem=15-(now.getMinutes()%15);
@@ -106,11 +114,10 @@
     return n;
   }
 
-  // Are we within 2 seconds past a 15-min boundary?
+  // True if we're within the first 10 seconds of a 15-min boundary
   function isAtBoundary(){
     const now=new Date();
-    const m=now.getMinutes(), s=now.getSeconds();
-    return (m%15===0 && s<3);
+    return (now.getMinutes()%15===0 && now.getSeconds()<10);
   }
 
   function randInRange(p){
@@ -123,7 +130,10 @@
 
   async function fetchFromBin(){
     try{
-      const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
+      const r=await fetch(`${BIN_URL}/latest`,{
+        headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'},
+        cache:'no-store'           // always bypass browser cache
+      });
       if(!r.ok) throw new Error();
       return await r.json();
     }catch{ return null; }
@@ -166,16 +176,18 @@
     const data = await fetchFromBin();
 
     if(data && data.current && data.current.length){
-      currentNumbers = data.current;
-      nextNumbers    = data.next || generateGrid();
-      const dt = data.currentDrawTime ? new Date(data.currentDrawTime) : new Date();
+      currentNumbers    = data.current;
+      nextNumbers       = data.next || generateGrid();
+      lastKnownDrawTime = data.currentDrawTime || null;
+      const dt = lastKnownDrawTime ? new Date(lastKnownDrawTime) : new Date();
       document.getElementById('draw-time').textContent = formatTime(dt);
       buildTable(currentNumbers, false);
     } else {
       // First-ever load — bootstrap both slots
       currentNumbers = generateGrid();
       nextNumbers    = generateGrid();
-      const now=new Date();
+      const now = new Date();
+      lastKnownDrawTime = now.toISOString();
       document.getElementById('draw-time').textContent = formatTime(now);
       buildTable(currentNumbers, false);
       await pushToBin({
@@ -189,7 +201,9 @@
     setInterval(pollAndTick, 1000);
   }
 
+  // Poll remote every 3 seconds (fast sync)
   let lastPoll = 0;
+
   async function pollAndTick(){
     const now = new Date();
 
@@ -202,21 +216,19 @@
     // ── Swap at boundary ──
     if(isAtBoundary() && !swapped){
       swapped = true;
-      // Pull latest from cloud so we get whatever admin staged
       const data = await fetchFromBin();
       const incoming = (data && data.next && data.next.length) ? data.next : nextNumbers;
-      const newNext  = generateGrid(); // fallback next
+      const newNext  = generateGrid();
 
-      currentNumbers = incoming;
-      nextNumbers    = (data && data.nextPrepared && data.nextPrepared.length) ? data.nextPrepared : newNext;
+      currentNumbers    = incoming;
+      nextNumbers       = (data && data.nextPrepared && data.nextPrepared.length) ? data.nextPrepared : newNext;
+      const slotTime    = new Date();
+      lastKnownDrawTime = slotTime.toISOString();
 
-      const slotTime = new Date();
       document.getElementById('draw-time').textContent = formatTime(slotTime);
       buildTable(currentNumbers, true);
-
       nextDraw = getNextSlot();
 
-      // Promote: current ← next, next ← nextPrepared or fresh
       await pushToBin({
         current: currentNumbers,
         next: nextNumbers,
@@ -224,19 +236,26 @@
         updatedAt: slotTime.toISOString()
       });
 
-      setTimeout(()=>{ swapped=false; }, 5000);
+      setTimeout(()=>{ swapped=false; }, 12000);
       return;
     }
 
     if(!isAtBoundary()) swapped = false;
 
-    // ── Poll remote every 10s (read next slot updates from admin) ──
-    if(now.getTime() - lastPoll > 10000){
+    // ── Poll remote every 3 s ──
+    if(now.getTime() - lastPoll > 3000){
       lastPoll = now.getTime();
       const data = await fetchFromBin();
       if(data){
-        // Only update currentNumbers if remote currentDrawTime matches our slot
-        // i.e. don't swap current mid-slot
+        // FIX: if admin has pushed a new current mid-slot, sync it immediately
+        if(data.currentDrawTime && data.currentDrawTime !== lastKnownDrawTime){
+          lastKnownDrawTime = data.currentDrawTime;
+          currentNumbers = data.current || currentNumbers;
+          const dt = new Date(data.currentDrawTime);
+          document.getElementById('draw-time').textContent = formatTime(dt);
+          buildTable(currentNumbers, true);  // flash to signal update
+        }
+        // Always sync next numbers so the boundary swap gets admin's staged data
         nextNumbers = (data.next && data.next.length) ? data.next : nextNumbers;
       }
     }
