@@ -21,86 +21,41 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
              radial-gradient(ellipse 50% 30% at 80% 90%,rgba(245,194,0,.06) 0%,transparent 60%);}
 .page{position:relative;z-index:1;width:100%;max-width:960px;}
 
-/* Header */
 header{text-align:center;margin-bottom:1.5rem;animation:fD .6s ease both;}
 .gems{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:5px;}
 .gem{width:16px;height:16px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;}
-h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;
-  color:#fff;text-shadow:0 0 40px var(--glow);}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
 .tagline{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:var(--M);}
 
-/* Banners */
-.banner{display:none;border-radius:10px;padding:.6rem 1.2rem;margin-bottom:.9rem;
-  font-family:var(--M);font-size:11px;letter-spacing:1px;text-align:center;}
+.banner{display:none;border-radius:10px;padding:.6rem 1.2rem;margin-bottom:.9rem;font-family:var(--M);font-size:11px;text-align:center;}
 #b-offline{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#f87171;}
 #b-closed{background:rgba(124,109,250,.08);border:1px solid rgba(124,109,250,.2);color:var(--muted);}
 
-/* Draw Status Panel */
-.dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);
-  border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;
-  margin-bottom:1.4rem;animation:fU .5s .1s ease both;}
+.dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;margin-bottom:1.4rem;}
 .db{display:flex;flex-direction:column;gap:4px;padding:0 1.6rem;}
 .db:not(:last-child){border-right:1px solid var(--border);}
 .dl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:var(--M);}
-.dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);letter-spacing:1px;line-height:1.2;}
+.dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);}
 .dv.gold{color:var(--gold);}
 
-/* Main Grid Box */
-.gw{background:var(--card);border:1px solid var(--border);border-radius:16px;
-  padding:1.2rem;overflow-x:auto;position:relative;animation:fU .5s .2s ease both;}
-.ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
-.spin{width:30px;height:30px;border:3px solid rgba(124,109,250,.2);border-top-color:var(--purple);
-  border-radius:50%;animation:spin .8s linear infinite;}
-.ov-txt{font-family:var(--M);font-size:12px;color:var(--muted);letter-spacing:2px;}
+.gw{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;overflow-x:auto;position:relative;margin-bottom:1.4rem;}
+.ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.spin{width:30px;height:30px;border:3px solid rgba(124,109,250,.2);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;}
 table{width:100%;border-collapse:collapse;}
-th{font-family:var(--M);font-size:11px;color:var(--muted);padding:6px 2px;text-align:center;
-  letter-spacing:1px;border-bottom:1px solid var(--border);}
-.rl{font-family:var(--M);font-size:11px;color:var(--muted);padding:0 8px 0 0;text-align:right;white-space:nowrap;min-width:22px;}
-td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;
-  font-family:var(--M);font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;
-  transition:background .15s,transform .1s;}
-td.c:hover{background:var(--hover);transform:scale(1.05);z-index:2;border-color:var(--purple);}
+th{font-family:var(--M);font-size:11px;color:var(--muted);padding:6px 2px;border-bottom:1px solid var(--border);}
+.rl{font-family:var(--M);font-size:11px;color:var(--muted);padding:0 8px;text-align:right;}
+td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;font-family:var(--M);font-size:14px;font-weight:700;color:#fff;}
 td.c.fl{animation:flash .9s ease forwards;}
 
-/* History List Items */
-.h-item {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s;
-  margin-bottom: 8px;
-}
-.h-item:hover { border-color: var(--purple); background: var(--hover); }
-.h-time { font-family: var(--M); font-size: 13px; font-weight: 700; color: var(--gold); }
-.h-date { font-family: var(--M); font-size: 11px; color: var(--muted); }
-.h-badge { font-size: 9px; font-family: var(--M); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted); }
-.h-manual { color: var(--purple); border-color: var(--glow); }
+.h-item {background: var(--card2);border: 1px solid var(--border);border-radius: 8px;padding: 10px 15px;display: flex;justify-content: space-between;align-items: center;margin-bottom: 8px;}
+.h-time {font-family: var(--M); font-size: 13px; font-weight: 700; color: var(--gold);}
+.h-date {font-family: var(--M); font-size: 11px; color: var(--muted);}
+.h-badge {font-size: 9px; font-family: var(--M); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted);}
+.h-manual {color: var(--purple); border-color: var(--glow);}
 
-footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
-  color:var(--muted);letter-spacing:1px;animation:fU .5s .3s ease both;}
-
-@keyframes fD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
-@keyframes fU{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;color:var(--muted);}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes flash{0%{background:rgba(124,109,250,.6);color:var(--gold);}
-  70%{background:rgba(124,109,250,.15);}100%{background:transparent;color:#fff;}}
-
-@media(max-width:620px){
-  body{padding:1.2rem .6rem;}
-  .dp{grid-template-columns:1fr 1fr;}
-  .db{padding:0 .9rem;}
-  .db:first-child{grid-column:span 2;border-right:none;border-bottom:1px solid var(--border);padding-bottom:.8rem;margin-bottom:.1rem;}
-  .db:nth-child(2){border-right:1px solid var(--border);}
-  .dv{font-size:1.15rem;}
-  td.c{font-size:11px;padding:6px 1px;}
-  th,.rl{font-size:9px;}
-  .gw{padding:.75rem .4rem;}
-}
+@keyframes flash{0%{background:rgba(124,109,250,.6);color:var(--gold);} 100%{background:transparent;color:#fff;}}
 </style>
 </head>
 <body>
@@ -119,31 +74,27 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
   </div>
 
   <div class="gw">
-    <div class="ov" id="ov"><div class="spin"></div><span class="ov-txt">Loading…</span></div>
+    <div class="ov" id="ov"><div class="spin"></div><span class="ov-txt" style="font-family:var(--M); font-size:12px; color:var(--muted);">Loading Live Data…</span></div>
     <table><thead id="th"></thead><tbody id="tb"></tbody></table>
   </div>
 
-  <div class="gw" style="margin-top: 1.4rem; animation-delay: 0.3s;">
+  <div class="gw">
     <div class="dl" style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span>Draw History</span>
-        <button onclick="resetHistoryFilter()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Reset Filter</button>
+        <button onclick="resetFilter()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Show All</button>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 10px; color: var(--muted);">SELECT DATE:</span>
-        <input type="date" id="hist-date-filter" onchange="loadHistory()" 
-               style="background: var(--card2); border: 1px solid var(--border); color: #fff; font-family: var(--M); font-size: 11px; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;">
+        <span style="font-size: 10px; color: var(--muted);">FILTER DATE:</span>
+        <input type="date" id="hist-date-filter" onchange="loadHistory()" style="background: var(--card2); border: 1px solid var(--border); color: #fff; font-family: var(--M); font-size: 11px; padding: 4px 8px; border-radius: 6px; outline: none;">
       </div>
     </div>
-    <div id="hist-container">
-      <div class="ov-txt" style="text-align: center; padding: 1rem;">Loading history...</div>
-    </div>
+    <div id="hist-container"><div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">Loading history...</div></div>
   </div>
 
   <footer>&copy; <span id="yr"></span> Lucky Draw — Entertainment only.</footer>
 </div>
 <script>
-/* ── CONFIG ── */
 const LIVE_KEY = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
 const LIVE_BIN = '69e4a9f9aaba882197157ed4';
 const LIVE_URL = `https://api.jsonbin.io/v3/b/${LIVE_BIN}`;
@@ -151,45 +102,32 @@ const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15;
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-/* ── TIME UTILS ── */
-const pad  = n => String(n).padStart(2,'0');
+const pad = n => String(n).padStart(2,'0');
 const pad4 = n => String(n).padStart(4,'0');
 function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%12||12;return `${pad(h)}:${pad(m)} ${a}`;}
 function mod(d){return d.getHours()*60+d.getMinutes();}
 function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
 
 function slotKey(d){
-  const m=mod(d);
-  if(m<DAY_START||m>=DAY_END) return null;
-  const idx=Math.floor((m-DAY_START)/SLOT);
-  const sm=idx*SLOT+DAY_START;
-  const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
-  return `${y}-${mo}-${dd}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
+  const m=mod(d); if(m<DAY_START||m>=DAY_END) return null;
+  const idx=Math.floor((m-DAY_START)/SLOT); const sm=idx*SLOT+DAY_START;
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
 }
 
 function nextSlot(d){
-  const m=mod(d);
-  let nm;
+  const m=mod(d); let nm;
   if(m<DAY_START){nm=DAY_START;}
   else if(m>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
-  else{
-    nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START;
-    if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
-  }
+  else {nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START; if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}}
   const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
 }
 
-function genGrid(){return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));}
-
-/* ── BIN I/O ── */
 async function getBin(){
-  try{
-    const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
-    if(!r.ok)throw 0; setOff(false); return await r.json();
-  }catch{setOff(true);return null;}
+  try{const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'}); if(!r.ok)throw 0; setOff(false); return await r.json();}
+  catch{setOff(true);return null;}
 }
 async function putBin(p){
-  try{const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});return r.ok;}catch{return false;}
+  try{const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});return r.ok;} catch{return false;}
 }
 
 function setOff(v){document.getElementById('b-offline').style.display=v?'block':'none';}
@@ -198,17 +136,14 @@ function setClosed(v){document.getElementById('b-closed').style.display=v?'block
 function buildTable(nums,flash){
   const th=document.getElementById('th'),tb=document.getElementById('tb');
   th.innerHTML='';tb.innerHTML='';
-  const hr=document.createElement('tr');
-  const c0=document.createElement('th');c0.style.minWidth='24px';hr.appendChild(c0);
+  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
   for(let c=0;c<10;c++){const t=document.createElement('th');t.textContent=String.fromCharCode(65+c);hr.appendChild(t);}
   th.appendChild(hr);
   for(let r=0;r<10;r++){
-    const tr=document.createElement('tr');
-    const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
+    const tr=document.createElement('tr'); const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
     for(let c=0;c<10;c++){
-      const td=document.createElement('td');td.className='c';
-      td.textContent=(nums[r]||[])[c]||'----';
-      if(flash){td.style.animationDelay=`${(r*10+c)*9}ms`;td.classList.add('fl');}
+      const td=document.createElement('td');td.className='c';td.textContent=(nums[r]||[])[c]||'----';
+      if(flash){td.style.animationDelay=`${(r*10+c)*5}ms`;td.classList.add('fl');}
       tr.appendChild(td);
     }
     tb.appendChild(tr);
@@ -216,28 +151,29 @@ function buildTable(nums,flash){
   document.getElementById('ov').style.display='none';
 }
 
-/* ── HISTORY & FILTER LOGIC ── */
+/* REPORT LOGIC */
 async function loadHistory() {
   const container = document.getElementById('hist-container');
   const dateFilter = document.getElementById('hist-date-filter').value;
   const data = await getBin();
+  
   if (!data || !data.history || data.history.length === 0) {
-    container.innerHTML = '<div class="ov-txt" style="text-align:center; padding:1rem;">No history found.</div>';
+    container.innerHTML = '<div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">No history data found in database.</div>';
     return;
   }
+
   let history = data.history;
   if(dateFilter) {
     history = history.filter(h => h.drawTime.startsWith(dateFilter));
-  } else {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    history = history.filter(h => new Date(h.drawTime) >= sevenDaysAgo);
   }
-  history.reverse();
+  
+  history = [...history].reverse(); // Copy and reverse for newest first
+
   if(history.length === 0) {
-    container.innerHTML = `<div class="ov-txt" style="text-align:center; padding:1rem;">No results for ${dateFilter || 'last 7 days'}.</div>`;
+    container.innerHTML = `<div style="text-align:center; padding:1rem; font-family:var(--M); font-size:12px; color:var(--muted);">No draws found for ${dateFilter}.</div>`;
     return;
   }
+
   container.innerHTML = '';
   history.forEach(item => {
     const dt = new Date(item.drawTime);
@@ -250,60 +186,44 @@ async function loadHistory() {
     container.appendChild(div);
   });
 }
-function resetHistoryFilter(){ document.getElementById('hist-date-filter').value=''; loadHistory(); }
+function resetFilter(){ document.getElementById('hist-date-filter').value=''; loadHistory(); }
 
-/* ── STATE & SYNC ── */
 let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
 
 async function doSwap(now,remote){
   if(swapBusy)return; swapBusy=true;
-  const key=slotKey(now);
-  const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
-  curNums=incoming; nxtNums=genGrid(); curKey=key; nxtSlotDt=nextSlot(now);
-  document.getElementById('cur-t').textContent=fmt(now);
-  buildTable(curNums,true);
-  const histEntry = { slotKey:key, drawTime:now.toISOString(), numbers:JSON.parse(JSON.stringify(curNums)), type:'auto' };
+  const key=slotKey(now); const incoming=(remote?.next?.length)?remote.next:Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));
+  curNums=incoming; nxtNums=[]; curKey=key; nxtSlotDt=nextSlot(now);
+  document.getElementById('cur-t').textContent=fmt(now); buildTable(curNums,true);
   let hist = remote?.history || [];
-  hist.push(histEntry); if(hist.length>200) hist.splice(0,hist.length-200);
-  await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:key,updatedAt:now.toISOString(),history:hist});
-  loadHistory();
-  setTimeout(()=>{swapBusy=false;},20000);
+  hist.push({ slotKey:key, drawTime:now.toISOString(), numbers:curNums, type:'auto' });
+  if(hist.length>200) hist.shift();
+  await putBin({current:curNums,next:[],currentDrawTime:now.toISOString(),slotKey:key,updatedAt:now.toISOString(),history:hist});
+  loadHistory(); setTimeout(()=>{swapBusy=false;},15000);
 }
 
 async function init(){
-  const now=new Date(),ins=inSess(now),sk=slotKey(now);
-  nxtSlotDt=nextSlot(now); setClosed(!ins);
+  const now=new Date(); nxtSlotDt=nextSlot(now); setClosed(!inSess(now));
   loadHistory();
   const data=await getBin();
   if(data?.current?.length){
-    curNums=data.current; nxtNums=data.next?.length?data.next:genGrid(); curKey=data.slotKey||sk;
-    if(ins&&sk&&curKey&&curKey!==sk){await doSwap(now,data);}
-    else{const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,false);}
-  } else {
-    if(ins){curNums=genGrid();nxtNums=genGrid();curKey=sk;document.getElementById('cur-t').textContent=fmt(now);buildTable(curNums,false);await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:sk,updatedAt:now.toISOString()});}
-    else{buildTable(Array.from({length:10},()=>Array(10).fill('----')),false);document.getElementById('cur-t').textContent='Closed';document.getElementById('ov').style.display='none';}
-  }
+    curNums=data.current; curKey=data.slotKey;
+    const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+    document.getElementById('cur-t').textContent=fmt(dt); buildTable(curNums,false);
+    if(inSess(now) && slotKey(now)!==curKey && !swapBusy) await doSwap(now,data);
+  } else if(inSess(now)){ await doSwap(now,null); }
   setInterval(tick,1000);
 }
 
-async function tick(){
-  const now=new Date(),ins=inSess(now),sk=slotKey(now);
-  setClosed(!ins);
+function tick(){
+  const now=new Date(),ins=inSess(now),sk=slotKey(now); setClosed(!ins);
   if(nxtSlotDt){
     const diff=Math.max(0,Math.floor((nxtSlotDt-now)/1000));
-    const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
-    document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
+    document.getElementById('cd').textContent=ins?`${Math.floor(diff/3600)}h ${pad(Math.floor((diff%3600)/60))}m ${pad(diff%60)}s`:'—';
     document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
   }
-  if(ins&&sk&&sk!==curKey&&!swapBusy){ const data=await getBin(); await doSwap(now,data); return; }
-  if(Date.now()-lastPoll>3000){
-    lastPoll=Date.now(); const data=await getBin();
-    if(data && data.slotKey!==curKey && ins && !swapBusy){
-      curKey=data.slotKey; curNums=data.current; nxtSlotDt=nextSlot(now);
-      document.getElementById('cur-t').textContent=fmt(new Date(data.currentDrawTime));
-      buildTable(curNums,true); loadHistory();
-    }
-  }
+  if(ins && sk && sk!==curKey && !swapBusy){ getBin().then(d => doSwap(now,d)); }
+  if(Date.now()-lastPoll>5000){ lastPoll=Date.now(); getBin().then(d=>{ if(d && d.slotKey!==curKey){ curKey=d.slotKey; buildTable(d.current,true); loadHistory(); } }); }
 }
 init();
 </script>
