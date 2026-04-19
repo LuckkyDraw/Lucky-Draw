@@ -6,569 +6,773 @@
 <title>Lucky Draw — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;
-    --border:rgba(120,100,255,0.2);--border-hi:rgba(120,100,255,0.5);
-    --gold:#f5c200;--gold-dim:rgba(245,194,0,0.1);
-    --purple:#7c6dfa;--purple-dim:rgba(124,109,250,0.15);
-    --text:#e8e4ff;--muted:#7a749a;
-    --danger:#f87171;--danger-dim:rgba(248,113,113,0.1);
-    --success:#4ade80;--success-dim:rgba(74,222,128,0.1);
-    --font:'Rajdhani',sans-serif;--mono:'JetBrains Mono',monospace;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{
-    background:var(--bg);color:var(--text);font-family:var(--font);
-    min-height:100vh;display:flex;flex-direction:column;align-items:center;
-    padding:2rem 1rem;overflow-x:hidden;
-  }
-  body::before{
-    content:'';position:fixed;inset:0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,109,250,0.1) 0%,transparent 60%),
-      radial-gradient(ellipse 40% 30% at 85% 85%,rgba(248,113,113,0.05) 0%,transparent 60%);
-    pointer-events:none;z-index:0;
-  }
-  .page{position:relative;z-index:1;width:100%;max-width:1000px;}
+:root{
+  --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;
+  --border:rgba(120,100,255,.2);--bhi:rgba(120,100,255,.5);
+  --gold:#f5c200;--gd:rgba(245,194,0,.1);
+  --purple:#7c6dfa;--pd:rgba(124,109,250,.15);
+  --text:#e8e4ff;--muted:#7a749a;
+  --danger:#f87171;--dd:rgba(248,113,113,.1);
+  --success:#4ade80;--sd:rgba(74,222,128,.1);
+  --F:'Rajdhani',sans-serif;--M:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--F);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:2rem 1rem;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,109,250,.1) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 30% at 85% 85%,rgba(248,113,113,.05) 0%,transparent 60%);}
+.page{position:relative;z-index:1;width:100%;max-width:1020px;}
 
-  /* ── LOGIN ── */
-  #login-screen{display:flex;align-items:center;justify-content:center;min-height:90vh;animation:fadeUp .5s ease both;}
-  .login-card{
-    background:var(--card);border:1px solid var(--border-hi);border-radius:20px;
-    padding:2.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;
-  }
-  .login-title{font-size:1.4rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;text-align:center;}
-  .admin-badge{
-    display:inline-block;background:var(--danger-dim);border:1px solid rgba(248,113,113,0.3);
-    border-radius:20px;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--danger);
-    padding:3px 12px;text-align:center;
-  }
-  .field-label{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
-  .field-input{
-    width:100%;background:#0f0c24;border:1px solid var(--border-hi);border-radius:8px;
-    padding:12px 16px;font-family:var(--mono);font-size:14px;color:#fff;outline:none;
-    transition:border-color .2s;
-  }
-  .field-input:focus{border-color:var(--purple);}
-  .login-btn{
-    width:100%;background:var(--purple);border:none;border-radius:8px;padding:13px;
-    font-family:var(--font);font-size:14px;font-weight:700;letter-spacing:3px;
-    text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity .2s;
-  }
-  .login-btn:hover{opacity:.85;}
-  .login-error{font-family:var(--mono);font-size:12px;color:var(--danger);text-align:center;display:none;}
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:90vh;animation:fU .5s ease both;}
+.lcard{background:var(--card);border:1px solid var(--bhi);border-radius:20px;
+  padding:2.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.2rem;}
+.ltitle{font-size:1.4rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;text-align:center;}
+.badge{display:inline-block;background:var(--dd);border:1px solid rgba(248,113,113,.3);
+  border-radius:20px;font-family:var(--M);font-size:10px;letter-spacing:2px;color:var(--danger);
+  padding:3px 12px;text-align:center;}
+.flabel{font-family:var(--M);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;}
+.finput{width:100%;background:#0f0c24;border:1px solid var(--bhi);border-radius:8px;
+  padding:12px 16px;font-family:var(--M);font-size:14px;color:#fff;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:var(--purple);}
+.lbtn{width:100%;background:var(--purple);border:none;border-radius:8px;padding:13px;
+  font-family:var(--F);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:#fff;cursor:pointer;transition:opacity .2s;}
+.lbtn:hover{opacity:.85;}
+.lerr{font-family:var(--M);font-size:12px;color:var(--danger);text-align:center;display:none;}
 
-  /* ── ADMIN PANEL ── */
-  #admin-panel{display:none;width:100%;}
-  header{text-align:center;margin-bottom:1.5rem;animation:fadeDown .5s ease both;}
-  .logo-line{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;}
-  header h1{font-size:clamp(1.4rem,4vw,2.1rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
+/* ── PANEL ── */
+#admin-panel{display:none;width:100%;}
+header{text-align:center;margin-bottom:1.4rem;animation:fD .5s ease both;}
+.hline{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;}
+header h1{font-size:clamp(1.3rem,4vw,2rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
 
-  /* ── Slot row ── */
-  .slot-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;animation:fadeUp .4s .1s ease both;}
-  .slot-card{
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    padding:1.1rem 1.4rem;display:flex;flex-direction:column;gap:5px;
-  }
-  .slot-card.next{border-color:rgba(245,194,0,0.35);}
-  .slot-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
-  .slot-time{font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#fff;letter-spacing:2px;}
-  .slot-time.gold{color:var(--gold);}
-  .slot-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-top:2px;width:fit-content;}
-  .slot-badge.live{background:rgba(74,222,128,0.12);color:var(--success);border:1px solid rgba(74,222,128,0.3);}
-  .slot-badge.staged{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(245,194,0,0.3);}
+/* ── TABS ── */
+.tabs{display:flex;gap:0;background:var(--card2);border:1px solid var(--border);border-radius:12px;
+  padding:4px;margin-bottom:1.2rem;animation:fU .4s ease both;}
+.tab{flex:1;padding:9px 0;border:none;background:transparent;cursor:pointer;
+  font-family:var(--F);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);border-radius:9px;transition:all .2s;}
+.tab.active{background:var(--purple);color:#fff;}
 
-  /* ── Countdown ── */
-  .cdbar{
-    background:var(--card2);border:1px solid var(--border);border-radius:10px;
-    padding:.7rem 1.2rem;margin-bottom:1rem;
-    display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
-    font-family:var(--mono);font-size:11px;color:var(--muted);
-    animation:fadeUp .4s .15s ease both;
-  }
-  .cdval{font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:2px;min-width:90px;}
-  #session-status{font-size:11px;color:var(--gold);margin-left:auto;}
+/* ── SLOT CARDS ── */
+.slot-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;animation:fU .4s .1s ease both;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:1rem 1.3rem;display:flex;flex-direction:column;gap:5px;}
+.sc.nxt{border-color:rgba(245,194,0,.35);}
+.sc-title{font-family:var(--M);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.sc-time{font-size:1.3rem;font-weight:700;font-family:var(--M);color:#fff;letter-spacing:2px;}
+.sc-time.gold{color:var(--gold);}
+.sc-badge{display:inline-block;font-family:var(--M);font-size:10px;letter-spacing:2px;
+  padding:3px 10px;border-radius:20px;margin-top:2px;width:fit-content;}
+.sc-badge.live{background:rgba(74,222,128,.12);color:var(--success);border:1px solid rgba(74,222,128,.3);}
+.sc-badge.staged{background:var(--gd);color:var(--gold);border:1px solid rgba(245,194,0,.3);}
 
-  /* ── Toolbar ── */
-  .toolbar{
-    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
-    background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:.9rem 1.2rem;margin-bottom:1rem;animation:fadeUp .4s .2s ease both;
-  }
-  .tlabel{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;white-space:nowrap;}
-  .spacer{flex:1;}
-  .btn{
-    font-family:var(--font);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
-    border:1px solid var(--border);border-radius:8px;padding:8px 16px;
-    background:transparent;color:var(--text);cursor:pointer;transition:all .18s;white-space:nowrap;
-  }
-  .btn:hover{background:var(--purple-dim);border-color:var(--purple);color:#fff;}
-  .btn:disabled{opacity:.4;cursor:not-allowed;}
-  .btn.danger{border-color:rgba(248,113,113,.4);color:var(--danger);}
-  .btn.danger:hover{background:var(--danger-dim);}
-  .btn.success{border-color:rgba(74,222,128,.4);color:var(--success);}
-  .btn.success:hover{background:var(--success-dim);}
-  .btn.gold{border-color:rgba(245,194,0,.4);color:var(--gold);}
-  .btn.gold:hover{background:var(--gold-dim);}
-  .btn.sm{padding:6px 12px;font-size:11px;}
+/* ── COUNTDOWN BAR ── */
+.cdbar{background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  padding:.7rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  font-family:var(--M);font-size:11px;color:var(--muted);animation:fU .4s .15s ease both;}
+.cdv{font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:2px;min-width:90px;}
+#sess-lbl{margin-left:auto;font-size:11px;}
 
-  /* ── Grids ── */
-  .grids-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;animation:fadeUp .4s .25s ease both;}
-  .gsec-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;padding-left:2px;}
-  .grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.9rem;overflow-x:auto;}
-  .grid-wrap.editable{border-color:rgba(245,194,0,0.3);}
-  .grid-wrap.readonly{opacity:.7;}
-  table{width:100%;border-collapse:collapse;}
-  th{font-family:var(--mono);font-size:10px;color:var(--muted);padding:5px 2px;text-align:center;letter-spacing:1px;border-bottom:1px solid var(--border);}
-  .row-label{font-family:var(--mono);font-size:10px;color:var(--muted);padding:0 5px 0 0;white-space:nowrap;text-align:right;}
-  td.ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);min-width:44px;}
-  td.ed{border:1px solid var(--border);text-align:center;padding:3px;position:relative;min-width:44px;}
-  td.ed input{
-    width:100%;background:transparent;border:none;outline:none;
-    font-family:var(--mono);font-size:13px;font-weight:700;
-    color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;
-  }
-  td.ed input:focus{color:#fff;}
-  td.ed.focused{background:var(--purple-dim);border-color:var(--purple);}
-  td.ed.invalid{background:var(--danger-dim);border-color:rgba(248,113,113,.4);}
-  td.ed.invalid input{color:var(--danger);}
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);
+  border:1px solid var(--border);border-radius:12px;padding:.9rem 1.2rem;
+  margin-bottom:1rem;animation:fU .4s .2s ease both;}
+.tlbl{font-family:var(--M);font-size:11px;color:var(--muted);letter-spacing:2px;white-space:nowrap;}
+.sp{flex:1;}
+.btn{font-family:var(--F);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  border:1px solid var(--border);border-radius:8px;padding:8px 15px;background:transparent;
+  color:var(--text);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.btn:hover{background:var(--pd);border-color:var(--purple);color:#fff;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.danger{border-color:rgba(248,113,113,.4);color:var(--danger);}
+.btn.danger:hover{background:var(--dd);}
+.btn.ok{border-color:rgba(74,222,128,.4);color:var(--success);}
+.btn.ok:hover{background:var(--sd);}
+.btn.gold{border-color:rgba(245,194,0,.4);color:var(--gold);}
+.btn.gold:hover{background:var(--gd);}
+.btn.sm{padding:6px 11px;font-size:11px;}
 
-  /* ── Status / info ── */
-  .statusbar{display:flex;align-items:center;gap:10px;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--muted);animation:fadeUp .4s .3s ease both;flex-wrap:wrap;}
-  .sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0;}
-  .infobox{
-    background:var(--card2);border:1px solid var(--border);border-radius:10px;
-    padding:.8rem 1.2rem;margin-top:.8rem;
-    font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.9;
-    animation:fadeUp .4s .35s ease both;
-  }
-  .infobox b{color:var(--text);font-weight:400;}
-  .toast{
-    position:fixed;bottom:2rem;right:1.5rem;background:#1e1a3d;border:1px solid var(--purple);
-    border-radius:12px;padding:12px 20px;font-family:var(--mono);font-size:12px;color:#fff;
-    transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:320px;
-    word-break:break-word;
-  }
-  .toast.show{transform:none;opacity:1;}
-  .toast.err{border-color:var(--danger);color:var(--danger);}
-  .toast.ok{border-color:var(--success);color:var(--success);}
+/* ── GRIDS (edit panel) ── */
+.grids{display:grid;grid-template-columns:1fr 1fr;gap:1rem;animation:fU .4s .25s ease both;}
+.gsec-t{font-family:var(--M);font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.5rem;padding-left:2px;}
+.gw{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.85rem;overflow-x:auto;}
+.gw.ed{border-color:rgba(245,194,0,.3);}
+.gw.ro{opacity:.7;}
+table{width:100%;border-collapse:collapse;}
+th{font-family:var(--M);font-size:10px;color:var(--muted);padding:5px 2px;text-align:center;
+  letter-spacing:1px;border-bottom:1px solid var(--border);}
+.rl{font-family:var(--M);font-size:10px;color:var(--muted);padding:0 5px 0 0;text-align:right;white-space:nowrap;}
+td.ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--M);
+  font-size:13px;font-weight:700;color:var(--text);min-width:44px;}
+td.ed{border:1px solid var(--border);text-align:center;padding:3px;position:relative;min-width:44px;}
+td.ed input{width:100%;background:transparent;border:none;outline:none;font-family:var(--M);
+  font-size:13px;font-weight:700;color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;}
+td.ed input:focus{color:#fff;}
+td.ed.focused{background:var(--pd);border-color:var(--purple);}
+td.ed.invalid{background:var(--dd);border-color:rgba(248,113,113,.4);}
+td.ed.invalid input{color:var(--danger);}
 
-  @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+/* ── STATUS ── */
+.sbar{display:flex;align-items:center;gap:10px;margin-top:.7rem;font-family:var(--M);
+  font-size:11px;color:var(--muted);flex-wrap:wrap;}
+.sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0;}
+.infobox{background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  padding:.8rem 1.2rem;margin-top:.8rem;font-family:var(--M);font-size:11px;
+  color:var(--muted);line-height:1.9;}
+.infobox b{color:var(--text);font-weight:400;}
 
-  /* ── Mobile ── */
-  @media(max-width:700px){
-    body{padding:1rem .7rem;}
-    .slot-row,.grids-row{grid-template-columns:1fr;}
-    .toolbar{gap:6px;}
-    .btn{font-size:11px;padding:7px 12px;}
-    td.ro,td.ed input{font-size:11px;}
-    .grid-wrap{padding:.7rem .5rem;}
-    header h1{letter-spacing:2px;}
-  }
-  @media(max-width:420px){
-    td.ro{font-size:10px;}
-    td.ed input{font-size:10px;}
-  }
+/* ── HISTORY PANEL ── */
+#history-panel{display:none;animation:fU .4s ease both;}
+.hist-controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:1rem 1.3rem;margin-bottom:1.2rem;}
+.hc-group{display:flex;flex-direction:column;gap:5px;}
+.hc-label{font-family:var(--M);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.hc-input{background:#0f0c24;border:1px solid var(--bhi);border-radius:8px;
+  padding:8px 12px;font-family:var(--M);font-size:13px;color:#fff;outline:none;
+  transition:border-color .2s;}
+.hc-input:focus{border-color:var(--purple);}
+.hist-summary{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+.hstat{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:.8rem 1.2rem;flex:1;min-width:120px;display:flex;flex-direction:column;gap:3px;}
+.hstat-label{font-family:var(--M);font-size:10px;letter-spacing:2px;color:var(--muted);}
+.hstat-val{font-size:1.3rem;font-weight:700;font-family:var(--M);color:#fff;}
+
+/* History records list */
+#hist-list{display:flex;flex-direction:column;gap:1rem;}
+.hrec{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.hrec-header{display:flex;align-items:center;gap:1rem;padding:.85rem 1.2rem;
+  cursor:pointer;user-select:none;transition:background .15s;flex-wrap:wrap;}
+.hrec-header:hover{background:rgba(124,109,250,.07);}
+.hrec-key{font-family:var(--M);font-size:12px;font-weight:700;color:var(--gold);}
+.hrec-date{font-family:var(--M);font-size:11px;color:var(--muted);}
+.hrec-type{font-family:var(--M);font-size:10px;letter-spacing:2px;padding:2px 8px;
+  border-radius:20px;margin-left:auto;}
+.hrec-type.auto{background:rgba(124,109,250,.12);color:var(--purple);border:1px solid rgba(124,109,250,.3);}
+.hrec-type.manual{background:var(--sd);color:var(--success);border:1px solid rgba(74,222,128,.3);}
+.hrec-arrow{font-size:12px;color:var(--muted);transition:transform .2s;}
+.hrec-body{display:none;padding:.75rem 1rem 1rem;border-top:1px solid var(--border);}
+.hrec.open .hrec-body{display:block;}
+.hrec.open .hrec-arrow{transform:rotate(180deg);}
+.mini-table{width:100%;border-collapse:collapse;}
+.mini-table th{font-family:var(--M);font-size:9px;color:var(--muted);padding:4px 2px;
+  text-align:center;border-bottom:1px solid var(--border);}
+.mini-table .mrl{font-family:var(--M);font-size:9px;color:var(--muted);padding:0 4px 0 0;text-align:right;}
+.mini-table td.mc{border:1px solid var(--border);text-align:center;padding:5px 1px;
+  font-family:var(--M);font-size:11px;font-weight:700;color:#fff;}
+.hist-empty{text-align:center;font-family:var(--M);font-size:12px;color:var(--muted);
+  padding:3rem;border:1px dashed var(--border);border-radius:14px;}
+.hist-loading{text-align:center;font-family:var(--M);font-size:12px;color:var(--muted);padding:2rem;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;right:1.5rem;background:#1e1a3d;border:1px solid var(--purple);
+  border-radius:12px;padding:12px 20px;font-family:var(--M);font-size:12px;color:#fff;
+  transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:320px;word-break:break-word;}
+.toast.show{transform:none;opacity:1;}
+.toast.err{border-color:var(--danger);color:var(--danger);}
+.toast.ok{border-color:var(--success);color:var(--success);}
+
+@keyframes fD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes fU{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* mobile */
+@media(max-width:700px){
+  body{padding:1rem .7rem;}
+  .slot-row,.grids{grid-template-columns:1fr;}
+  .btn{font-size:11px;padding:7px 11px;}
+  td.ro,td.ed input{font-size:11px;}
+  .gw{padding:.7rem .5rem;}
+  header h1{letter-spacing:2px;}
+  .hist-controls{gap:.5rem;}
+}
+@media(max-width:420px){td.ro{font-size:10px;}td.ed input{font-size:10px;}}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-card">
-    <p class="admin-badge" style="text-align:center;">Admin Access</p>
-    <p class="login-title">Lucky Draw</p>
+  <div class="lcard">
+    <p class="badge" style="text-align:center;">Admin Access</p>
+    <p class="ltitle">Lucky Draw</p>
     <div>
-      <p class="field-label">Password</p>
-      <input class="field-input" type="password" id="pw-input" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')doLogin()">
+      <p class="flabel">Password</p>
+      <input class="finput" type="password" id="pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="login-btn" onclick="doLogin()">Unlock Panel</button>
-    <p class="login-error" id="login-error">Incorrect password. Try again.</p>
+    <button class="lbtn" onclick="doLogin()">Unlock Panel</button>
+    <p class="lerr" id="lerr">Incorrect password. Try again.</p>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 <div id="admin-panel">
 <div class="page">
 
   <header>
-    <div class="logo-line">
+    <div class="hline">
       <div style="width:13px;height:13px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;"></div>
       <h1>Lucky Draw — Admin</h1>
       <div style="width:13px;height:13px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;"></div>
     </div>
   </header>
 
-  <!-- Slot info -->
-  <div class="slot-row">
-    <div class="slot-card">
-      <span class="slot-title">Current Live Draw</span>
-      <span class="slot-time gold" id="cur-slot-time">—</span>
-      <span class="slot-badge live">● Live now</span>
+  <!-- Tab bar -->
+  <div class="tabs">
+    <button class="tab active" id="tab-draw" onclick="switchTab('draw')">📊 Draw Editor</button>
+    <button class="tab" id="tab-hist" onclick="switchTab('hist')">📅 History &amp; Reports</button>
+    <button class="btn sm" style="margin-left:auto;flex:0;" onclick="doLogout()">Logout</button>
+  </div>
+
+  <!-- ═══ DRAW EDITOR ═══ -->
+  <div id="draw-panel">
+
+    <!-- Slot cards -->
+    <div class="slot-row">
+      <div class="sc">
+        <span class="sc-title">Current Live Draw</span>
+        <span class="sc-time gold" id="cur-slot-t">—</span>
+        <span class="sc-badge live">● Live now</span>
+      </div>
+      <div class="sc nxt">
+        <span class="sc-title">Next Draw Slot</span>
+        <span class="sc-time" id="nxt-slot-t">—</span>
+        <span class="sc-badge staged" id="nxt-badge">Awaiting publish</span>
+      </div>
     </div>
-    <div class="slot-card next">
-      <span class="slot-title">Next Draw Slot</span>
-      <span class="slot-time" id="nxt-slot-time">—</span>
-      <span class="slot-badge staged" id="nxt-badge">Awaiting publish</span>
+
+    <!-- Countdown -->
+    <div class="cdbar">
+      <span style="font-size:11px;letter-spacing:2px;">NEXT DRAW IN</span>
+      <span class="cdv" id="cd">—</span>
+      <span id="sess-lbl" style="color:var(--gold);">Checking…</span>
     </div>
-  </div>
 
-  <!-- Countdown -->
-  <div class="cdbar">
-    <span style="font-size:11px;letter-spacing:2px;">NEXT DRAW IN</span>
-    <span class="cdval" id="adm-countdown">—</span>
-    <span id="session-status">Checking session…</span>
-    <button class="btn sm" style="margin-left:auto;" onclick="doLogout()">Logout</button>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <span class="tlabel">Editing: Next Draw Chart</span>
-    <div class="spacer"></div>
-    <button class="btn gold" onclick="randomizeNext()">↺ Randomize</button>
-    <button class="btn danger" onclick="clearNext()">✕ Clear</button>
-    <button class="btn success" id="pub-btn" onclick="publishNext()">✓ Schedule for Next Draw</button>
-  </div>
-
-  <!-- Side-by-side grids -->
-  <div class="grids-row">
-    <div>
-      <p class="gsec-title">Current draw (live — read only)</p>
-      <div class="grid-wrap readonly"><table><thead id="ro-thead"></thead><tbody id="ro-tbody"></tbody></table></div>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <span class="tlbl">Editing: Next Draw Chart</span>
+      <div class="sp"></div>
+      <button class="btn gold" onclick="randomizeNext()">↺ Randomize</button>
+      <button class="btn danger" onclick="clearNext()">✕ Clear</button>
+      <button class="btn ok" id="pub-btn" onclick="publishNext()">✓ Schedule for Next Draw</button>
     </div>
-    <div>
-      <p class="gsec-title">Next draw (edit &amp; schedule)</p>
-      <div class="grid-wrap editable"><table><thead id="ed-thead"></thead><tbody id="ed-tbody"></tbody></table></div>
+
+    <!-- Grids side-by-side -->
+    <div class="grids">
+      <div>
+        <p class="gsec-t">Current draw — live (read only)</p>
+        <div class="gw ro"><table><thead id="ro-th"></thead><tbody id="ro-tb"></tbody></table></div>
+      </div>
+      <div>
+        <p class="gsec-t">Next draw — edit &amp; schedule</p>
+        <div class="gw ed"><table><thead id="ed-th"></thead><tbody id="ed-tb"></tbody></table></div>
+      </div>
     </div>
-  </div>
 
-  <div class="statusbar">
-    <span><span class="sdot" id="sdot" style="background:var(--success)"></span><span id="slabel">Loaded</span></span>
-    <span style="margin-left:auto;" id="last-pub">—</span>
-  </div>
+    <div class="sbar">
+      <span><span class="sdot" id="sdot" style="background:var(--success)"></span><span id="slbl">Loaded</span></span>
+      <span style="margin-left:auto;" id="last-pub">—</span>
+    </div>
+    <div class="infobox">
+      <b>How it works:</b> Left = currently live (read-only). Right = prepare next draw. Click <b>Schedule</b> to stage it.
+      At each 15-min boundary (9:30 AM – 9:30 PM) the draw advances automatically. If no manual schedule is set, a <b>random chart is generated</b>.
+      Both grids auto-refresh every 3 seconds.
+    </div>
 
-  <div class="infobox">
-    <b>How it works:</b> Left grid = what viewers see now (read-only). Right grid = next draw slot. Click <b>Schedule</b> to stage your changes. At each 15-min boundary (9:30 AM – 9:30 PM) the draw auto-advances. If no manual schedule is set, a <b>random chart is generated automatically</b>.
-  </div>
+  </div><!-- /draw-panel -->
+
+  <!-- ═══ HISTORY & REPORTS ═══ -->
+  <div id="history-panel">
+
+    <div class="hist-controls">
+      <div class="hc-group">
+        <span class="hc-label">From Date</span>
+        <input type="date" class="hc-input" id="h-from">
+      </div>
+      <div class="hc-group">
+        <span class="hc-label">To Date</span>
+        <input type="date" class="hc-input" id="h-to">
+      </div>
+      <button class="btn gold" onclick="applyFilter()">Apply Filter</button>
+      <button class="btn sm" onclick="setLast7()">Last 7 Days</button>
+      <button class="btn sm" onclick="setToday()">Today</button>
+    </div>
+
+    <div class="hist-summary">
+      <div class="hstat"><span class="hstat-label">Total Draws</span><span class="hstat-val" id="h-total">—</span></div>
+      <div class="hstat"><span class="hstat-label">Auto-Generated</span><span class="hstat-val" id="h-auto">—</span></div>
+      <div class="hstat"><span class="hstat-label">Manually Set</span><span class="hstat-val" id="h-manual">—</span></div>
+      <div class="hstat"><span class="hstat-label">Date Range</span><span class="hstat-val" id="h-range" style="font-size:.85rem;">—</span></div>
+    </div>
+
+    <div id="hist-list"><div class="hist-loading">Loading history…</div></div>
+
+  </div><!-- /history-panel -->
+
 </div>
-</div>
+</div><!-- /admin-panel -->
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
-const API_KEY  = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
-const BIN_ID   = '69e4a9f9aaba882197157ed4';
-const BIN_URL  = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const ADMIN_PW = 'Ganesh1234';
+/* ════════════════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════════════════ */
+const LIVE_KEY  = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
+const LIVE_BIN  = '69e4a9f9aaba882197157ed4';
+const LIVE_URL  = `https://api.jsonbin.io/v3/b/${LIVE_BIN}`;
 
-const DAY_START = 9*60+30;   // 570  = 9:30 AM
-const DAY_END   = 21*60+30;  // 1290 = 9:30 PM
-const SLOT_MIN  = 15;
+// ⚠ HISTORY BIN: Create a second free JSONBin at jsonbin.io and paste its ID + key here.
+// The live bin stores only the CURRENT state; history accumulates all past draws.
+// If you only have one bin, history will be stored in the same bin under a "history" array.
+// For simplicity this implementation appends to the same bin's history[] array.
+const ADMIN_PW  = 'Ganesh1234';
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15;
+
+/* ════════════════════════════════════════════════════════════════
+   TIME HELPERS
+════════════════════════════════════════════════════════════════ */
 const pad  = n => String(n).padStart(2,'0');
 const pad4 = n => String(n).padStart(4,'0');
+function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%12||12;return `${pad(h)}:${pad(m)} ${a}`;}
+function fmtDate(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function fmtFull(d){return `${fmtDate(d)}  ${fmt(d)}`;}
+function mod(d){return d.getHours()*60+d.getMinutes();}
+function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
 
-function formatTime(d){
-  let h=d.getHours(), m=d.getMinutes();
-  const ap=h>=12?'PM':'AM'; h=h%12||12;
-  return `${pad(h)}:${pad(m)} ${ap}`;
+function slotKey(d){
+  const m=mod(d);
+  if(m<DAY_START||m>=DAY_END)return null;
+  const idx=Math.floor((m-DAY_START)/SLOT);
+  const sm=idx*SLOT+DAY_START;
+  const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
+  return `${y}-${mo}-${dd}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
 }
 
-function minOfDay(d){ return d.getHours()*60+d.getMinutes(); }
-
-function isInSession(d){
-  const m=minOfDay(d);
-  return m>=DAY_START && m<DAY_END;
+function slotStartTime(d){
+  const m=mod(d);
+  if(m<DAY_START||m>=DAY_END)return null;
+  const idx=Math.floor((m-DAY_START)/SLOT);
+  const sm=idx*SLOT+DAY_START;
+  const n=new Date(d);n.setHours(Math.floor(sm/60),sm%60,0,0);return n;
 }
 
-function currentSlotKey(d){
-  const m=minOfDay(d);
-  if(m<DAY_START||m>=DAY_END) return null;
-  const elapsed=m-DAY_START;
-  const slotIdx=Math.floor(elapsed/SLOT_MIN);
-  const slotMins=slotIdx*SLOT_MIN+DAY_START;
-  const sH=Math.floor(slotMins/60), sM=slotMins%60;
-  const y=d.getFullYear(), mo=pad(d.getMonth()+1), dd=pad(d.getDate());
-  return `${y}-${mo}-${dd}-${pad(sH)}${pad(sM)}`;
-}
-
-function currentSlotTime(d){
-  // Returns a Date representing the start of the current slot
-  const m=minOfDay(d);
-  if(m<DAY_START||m>=DAY_END) return null;
-  const elapsed=m-DAY_START;
-  const slotIdx=Math.floor(elapsed/SLOT_MIN);
-  const slotMins=slotIdx*SLOT_MIN+DAY_START;
-  const nd=new Date(d);
-  nd.setHours(Math.floor(slotMins/60), slotMins%60, 0, 0);
-  return nd;
-}
-
-function getNextSlot(d){
-  const m=minOfDay(d);
-  if(m<DAY_START){
-    const nd=new Date(d); nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
+function nextSlot(d){
+  const m=mod(d);
+  let nm;
+  if(m<DAY_START){nm=DAY_START;}
+  else if(m>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+  else{
+    nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START;
+    if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
   }
-  if(m>=DAY_END){
-    const nd=new Date(d); nd.setDate(nd.getDate()+1);
-    nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
-  }
-  const elapsed=m-DAY_START;
-  const nextMins=Math.ceil((elapsed+1)/SLOT_MIN)*SLOT_MIN+DAY_START;
-  if(nextMins>=DAY_END){
-    const nd=new Date(d); nd.setDate(nd.getDate()+1);
-    nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
-  }
-  const nd=new Date(d);
-  nd.setHours(Math.floor(nextMins/60),nextMins%60,0,0);
-  return nd;
+  const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
 }
 
-function randInRange(p){ return pad4(Math.floor(Math.random()*99)+p*100+Math.floor(Math.random()*1)); }
-function generateGrid(){
-  return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(Math.floor(Math.random()*100)+(r*10+c)*100)));
+/* ════════════════════════════════════════════════════════════════
+   GRID
+════════════════════════════════════════════════════════════════ */
+function genGrid(){
+  return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));
 }
 
-// ─── BIN I/O ─────────────────────────────────────────────────────────────────
-async function fetchBin(){
+/* ════════════════════════════════════════════════════════════════
+   BIN I/O
+════════════════════════════════════════════════════════════════ */
+async function getBin(){
   try{
-    const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
-    if(!r.ok) throw 0;
-    return await r.json();
-  }catch{ return null; }
+    const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
+    if(!r.ok)throw 0; return await r.json();
+  }catch{return null;}
 }
 
-async function pushBin(payload){
-  const btn=document.getElementById('pub-btn');
-  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+async function putBin(p){
   try{
-    const r=await fetch(BIN_URL,{method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
-      body:JSON.stringify(payload)
-    });
+    const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});
     return r.ok;
-  }catch{
-    showToast('Publish failed. Check API key / network.',true);
-    return false;
-  }finally{
-    if(btn){ btn.disabled=false; btn.textContent='✓ Schedule for Next Draw'; }
-  }
+  }catch{return false;}
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════════════════ */
 function doLogin(){
-  if(document.getElementById('pw-input').value===ADMIN_PW){
+  if(document.getElementById('pw').value===ADMIN_PW){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('admin-panel').style.display='block';
     initAdmin();
   } else {
-    const e=document.getElementById('login-error');
-    e.style.display='block';
-    document.getElementById('pw-input').value='';
+    const e=document.getElementById('lerr');e.style.display='block';
+    document.getElementById('pw').value='';
     setTimeout(()=>e.style.display='none',3000);
   }
 }
 function doLogout(){
   document.getElementById('admin-panel').style.display='none';
   document.getElementById('login-screen').style.display='flex';
-  document.getElementById('pw-input').value='';
+  document.getElementById('pw').value='';
+  clearInterval(tickerId);tickerId=null;tickerRunning=false;
 }
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let curNums       = [];
-let nextNums      = [];
-let lastSlotKey   = null;
-let isDirty       = false;
-let tickerRunning = false;
+/* ════════════════════════════════════════════════════════════════
+   TABS
+════════════════════════════════════════════════════════════════ */
+function switchTab(t){
+  document.getElementById('tab-draw').classList.toggle('active',t==='draw');
+  document.getElementById('tab-hist').classList.toggle('active',t==='hist');
+  document.getElementById('draw-panel').style.display=t==='draw'?'block':'none';
+  document.getElementById('history-panel').style.display=t==='hist'?'block':'none';
+  if(t==='hist')loadHistory();
+}
 
-// ─── TABLE BUILDERS ───────────────────────────────────────────────────────────
-function buildROTable(nums){
-  const thead=document.getElementById('ro-thead');
-  const tbody=document.getElementById('ro-tbody');
-  thead.innerHTML=''; tbody.innerHTML='';
-  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
-  for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
-  thead.appendChild(hr);
+/* ════════════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════════════ */
+let curNums=[], nxtNums=[], lastSlotKey=null, isDirty=false, swapBusy=false;
+let tickerRunning=false, tickerId=null, lastPoll=0;
+let nxtSlotDt=null;
+
+/* ════════════════════════════════════════════════════════════════
+   TABLE BUILDERS
+════════════════════════════════════════════════════════════════ */
+function buildRO(nums){
+  const th=document.getElementById('ro-th'),tb=document.getElementById('ro-tb');
+  th.innerHTML='';tb.innerHTML='';
+  const hr=document.createElement('tr');hr.appendChild(document.createElement('th'));
+  for(let c=0;c<10;c++){const t=document.createElement('th');t.textContent=String.fromCharCode(65+c);hr.appendChild(t);}
+  th.appendChild(hr);
   for(let r=0;r<10;r++){
     const tr=document.createElement('tr');
-    const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
-    for(let c=0;c<10;c++){
-      const td=document.createElement('td');td.className='ro';
-      td.textContent=(nums[r]||[])[c]||'----';
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
+    const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
+    for(let c=0;c<10;c++){const td=document.createElement('td');td.className='ro';td.textContent=(nums[r]||[])[c]||'----';tr.appendChild(td);}
+    tb.appendChild(tr);
   }
 }
 
-function buildEDTable(nums){
-  const thead=document.getElementById('ed-thead');
-  const tbody=document.getElementById('ed-tbody');
-  thead.innerHTML=''; tbody.innerHTML='';
-  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
-  for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
-  thead.appendChild(hr);
+function buildED(nums){
+  const th=document.getElementById('ed-th'),tb=document.getElementById('ed-tb');
+  th.innerHTML='';tb.innerHTML='';
+  const hr=document.createElement('tr');hr.appendChild(document.createElement('th'));
+  for(let c=0;c<10;c++){const t=document.createElement('th');t.textContent=String.fromCharCode(65+c);hr.appendChild(t);}
+  th.appendChild(hr);
   for(let r=0;r<10;r++){
     const tr=document.createElement('tr');
-    const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
+    const rl=document.createElement('td');rl.className='rl';rl.textContent=r+1;tr.appendChild(rl);
     for(let c=0;c<10;c++){
-      const td=document.createElement('td');td.className='ed';
-      td.dataset.r=r; td.dataset.c=c;
-      const inp=document.createElement('input');
-      inp.type='text'; inp.maxLength=4;
-      inp.value=(nums[r]||[])[c]||'';
+      const td=document.createElement('td');td.className='ed';td.dataset.r=r;td.dataset.c=c;
+      const inp=document.createElement('input');inp.type='text';inp.maxLength=4;inp.value=(nums[r]||[])[c]||'';
       inp.addEventListener('focus',()=>td.classList.add('focused'));
       inp.addEventListener('blur',()=>{td.classList.remove('focused');validateCell(inp,td,r,c);});
       inp.addEventListener('input',()=>{markDirty();validateCell(inp,td,r,c);});
       inp.addEventListener('keydown',e=>navCell(e,r,c));
-      td.appendChild(inp);
-      tr.appendChild(td);
+      td.appendChild(inp);tr.appendChild(td);
     }
-    tbody.appendChild(tr);
+    tb.appendChild(tr);
   }
 }
 
 function validateCell(inp,td,r,c){
-  const prefix=pad(r*10+c), val=inp.value.trim();
-  const valid=val.length===4&&val.startsWith(prefix)&&/^\d{4}$/.test(val);
-  td.classList.toggle('invalid',!!val&&!valid);
-  if(valid) nextNums[r][c]=val;
+  const prefix=pad(r*10+c),val=inp.value.trim();
+  const ok=val.length===4&&val.startsWith(prefix)&&/^\d{4}$/.test(val);
+  td.classList.toggle('invalid',!!val&&!ok);
+  if(ok)nxtNums[r][c]=val;
 }
 
 function navCell(e,r,c){
   let nr=r,nc=c;
-  if(e.key==='ArrowRight') nc=Math.min(9,c+1);
-  else if(e.key==='ArrowLeft') nc=Math.max(0,c-1);
-  else if(e.key==='ArrowDown'||e.key==='Enter') nr=Math.min(9,r+1);
-  else if(e.key==='ArrowUp') nr=Math.max(0,r-1);
+  if(e.key==='ArrowRight')nc=Math.min(9,c+1);
+  else if(e.key==='ArrowLeft')nc=Math.max(0,c-1);
+  else if(e.key==='ArrowDown'||e.key==='Enter')nr=Math.min(9,r+1);
+  else if(e.key==='ArrowUp')nr=Math.max(0,r-1);
   else return;
   e.preventDefault();
-  document.querySelectorAll('#ed-tbody td.ed').forEach(td=>{
-    if(+td.dataset.r===nr&&+td.dataset.c===nc) td.querySelector('input').focus();
+  document.querySelectorAll('#ed-tb td.ed').forEach(td=>{
+    if(+td.dataset.r===nr&&+td.dataset.c===nc)td.querySelector('input').focus();
   });
 }
 
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
-function randomizeNext(){
-  nextNums=generateGrid();
-  buildEDTable(nextNums);
-  markDirty();
-  showToast('Randomized. Click Schedule to confirm.');
-}
-
+/* ════════════════════════════════════════════════════════════════
+   ACTIONS
+════════════════════════════════════════════════════════════════ */
+function randomizeNext(){nxtNums=genGrid();buildED(nxtNums);markDirty();showToast('Randomized. Click Schedule to confirm.');}
 function clearNext(){
-  if(!confirm('Clear all values in the next draw chart?')) return;
-  nextNums=Array.from({length:10},()=>Array(10).fill(''));
-  buildEDTable(nextNums);
-  markDirty();
+  if(!confirm('Clear all values?'))return;
+  nxtNums=Array.from({length:10},()=>Array(10).fill(''));buildED(nxtNums);markDirty();
 }
 
 async function publishNext(){
-  if(document.querySelectorAll('#ed-tbody td.ed.invalid').length){
-    showToast('Fix invalid cells first.',true); return;
+  if(document.querySelectorAll('#ed-tb td.ed.invalid').length){showToast('Fix invalid cells first.',true);return;}
+  document.querySelectorAll('#ed-tb td.ed').forEach(td=>{
+    const r=+td.dataset.r,c=+td.dataset.c,val=td.querySelector('input').value.trim();
+    if(/^\d{4}$/.test(val))nxtNums[r][c]=val;
+  });
+  const now=new Date(),ns=nextSlot(now);
+  const existing=await getBin();
+  const payload={
+    current:curNums,next:nxtNums,
+    currentDrawTime:existing?.currentDrawTime||now.toISOString(),
+    slotKey:existing?.slotKey||lastSlotKey||slotKey(now),
+    updatedAt:now.toISOString(),
+    nextScheduledFor:ns.toISOString(),
+    history:existing?.history||[]
+  };
+  const btn=document.getElementById('pub-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  const ok=await putBin(payload);
+  btn.disabled=false;btn.textContent='✓ Schedule for Next Draw';
+  if(ok){
+    isDirty=false;setStatus(false);
+    document.getElementById('last-pub').textContent='Scheduled at '+now.toLocaleTimeString();
+    document.getElementById('nxt-badge').textContent='✓ Scheduled for '+fmt(ns);
+    showToast(`Staged! Goes live at ${fmt(ns)}.`,false,true);
   }
-  // Read inputs → nextNums
-  document.querySelectorAll('#ed-tbody td.ed').forEach(td=>{
-    const r=+td.dataset.r, c=+td.dataset.c;
-    const val=td.querySelector('input').value.trim();
-    if(/^\d{4}$/.test(val)) nextNums[r][c]=val;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SLOT SWAP (admin side)
+════════════════════════════════════════════════════════════════ */
+async function doSwap(now, remote){
+  if(swapBusy)return; swapBusy=true;
+  const key=slotKey(now);
+  const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
+  const wasManual=!!(remote?.nextScheduledFor);
+
+  curNums=incoming; nxtNums=genGrid(); lastSlotKey=key; nxtSlotDt=nextSlot(now);
+  isDirty=false;setStatus(false);
+
+  // Archive this draw to history
+  const histEntry={
+    slotKey:key,
+    drawTime:now.toISOString(),
+    numbers:JSON.parse(JSON.stringify(curNums)),
+    type:wasManual?'manual':'auto'
+  };
+  const existing=await getBin();
+  const hist=existing?.history||[];
+  // keep last 200 entries
+  hist.push(histEntry);
+  if(hist.length>200)hist.splice(0,hist.length-200);
+
+  // Update bin: new current + fresh next pre-seeded + history appended
+  await putBin({
+    current:curNums,next:nxtNums,
+    currentDrawTime:now.toISOString(),
+    slotKey:key,updatedAt:now.toISOString(),
+    history:hist
   });
 
-  const now=new Date();
-  const nextSlot=getNextSlot(now);
+  // Update UI
+  buildRO(curNums);buildED(nxtNums);
+  const slotDt=slotStartTime(now)||now;
+  document.getElementById('cur-slot-t').textContent=fmt(slotDt);
+  document.getElementById('nxt-badge').textContent='Awaiting publish';
+  showToast(`Draw advanced to ${fmt(slotDt)}`,false,true);
 
-  // Preserve existing currentDrawTime + slotKey so index.html isn't confused
-  const existing=await fetchBin();
-  const payload={
-    current: curNums,
-    next: nextNums,
-    currentDrawTime: existing?.currentDrawTime || now.toISOString(),
-    slotKey: existing?.slotKey || lastSlotKey || currentSlotKey(now),
-    updatedAt: now.toISOString(),
-    nextScheduledFor: nextSlot.toISOString()
-  };
-
-  const ok=await pushBin(payload);
-  if(ok){
-    isDirty=false; setStatus(false);
-    document.getElementById('last-pub').textContent='Scheduled at '+now.toLocaleTimeString();
-    document.getElementById('nxt-badge').textContent='✓ Scheduled';
-    showToast(`Staged! Goes live at ${formatTime(nextSlot)}.`,false,true);
-  }
+  setTimeout(()=>{swapBusy=false;},20000);
 }
 
-// ─── STATUS / TOAST ───────────────────────────────────────────────────────────
-function markDirty(){ isDirty=true; setStatus(true); }
+/* ════════════════════════════════════════════════════════════════
+   STATUS / TOAST
+════════════════════════════════════════════════════════════════ */
+function markDirty(){isDirty=true;setStatus(true);}
 function setStatus(dirty){
-  const dot=document.getElementById('sdot'), lbl=document.getElementById('slabel');
-  if(dirty){ dot.style.background='var(--gold)'; lbl.textContent='Unsaved — click Schedule'; }
-  else      { dot.style.background='var(--success)'; lbl.textContent='Staged for next draw'; }
+  const dot=document.getElementById('sdot'),lbl=document.getElementById('slbl');
+  if(dirty){dot.style.background='var(--gold)';lbl.textContent='Unsaved — click Schedule';}
+  else{dot.style.background='var(--success)';lbl.textContent='Staged for next draw';}
 }
-
 function showToast(msg,isErr,isOk){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
+  const t=document.getElementById('toast');t.textContent=msg;
   t.className='toast'+(isErr?' err':isOk?' ok':'')+' show';
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.className='toast'+(isErr?' err':isOk?' ok':''),4000);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast'+(isErr?' err':isOk?' ok':''),4000);
 }
 
-// ─── TICKER ───────────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════════
+   TICKER + AUTO-POLL  ← THIS IS THE KEY FIX
+   Every second: countdown + session label
+   Every 3 s: fetch bin, check slotKey, auto-update both grids
+════════════════════════════════════════════════════════════════ */
 function startTicker(){
-  if(tickerRunning) return;
-  tickerRunning=true;
-  setInterval(()=>{
-    const now=new Date();
-    const inSess=isInSession(now);
-    const next=getNextSlot(now);
-    const diff=Math.max(0,Math.floor((next-now)/1000));
-    const hh=Math.floor(diff/3600), mm=Math.floor((diff%3600)/60), ss=diff%60;
-    document.getElementById('adm-countdown').textContent=`${hh}h ${pad(mm)}m ${pad(ss)}s`;
-    document.getElementById('nxt-slot-time').textContent=formatTime(next);
+  if(tickerRunning)return; tickerRunning=true;
+  tickerId=setInterval(async()=>{
+    const now=new Date(),ins=inSess(now),sk=slotKey(now);
+    nxtSlotDt=nextSlot(now);
 
-    const slotT=currentSlotTime(now);
-    if(slotT) document.getElementById('cur-slot-time').textContent=formatTime(slotT);
+    // Countdown
+    const diff=Math.max(0,Math.floor((nxtSlotDt-now)/1000));
+    const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
+    document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
+    document.getElementById('nxt-slot-t').textContent=fmt(nxtSlotDt);
 
     // Session label
-    const ss_el=document.getElementById('session-status');
-    if(inSess) ss_el.textContent='🟢 Session active (9:30 AM – 9:30 PM)';
-    else ss_el.textContent='🔴 Session closed — next opens 9:30 AM';
+    const sl=document.getElementById('sess-lbl');
+    sl.style.color=ins?'var(--success)':'var(--danger)';
+    sl.textContent=ins?'🟢 Session active':'🔴 Session closed (9:30 AM – 9:30 PM)';
+
+    // Boundary: slot key changed → trigger swap
+    if(ins&&sk&&sk!==lastSlotKey&&!swapBusy){
+      const data=await getBin(); await doSwap(now,data); return;
+    }
+
+    // Fast poll every 3 s — sync changes from index.html or another admin tab
+    if(Date.now()-lastPoll>3000){
+      lastPoll=Date.now();
+      const data=await getBin();
+      if(data){
+        // If remote slotKey is newer (another tab advanced it), just re-render
+        if(data.slotKey&&data.slotKey!==lastSlotKey&&!swapBusy){
+          curNums=data.current||curNums;
+          nxtNums=data.next?.length?data.next:genGrid();
+          lastSlotKey=data.slotKey;
+          buildRO(curNums);
+          // Only rebuild edit table if not dirty (don't overwrite admin's edits)
+          if(!isDirty)buildED(nxtNums);
+          const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+          document.getElementById('cur-slot-t').textContent=fmt(dt);
+          document.getElementById('nxt-badge').textContent='Awaiting publish';
+        } else {
+          // Same slot: sync current display and staged next (if not editing)
+          if(data.current?.length){
+            curNums=data.current;
+            buildRO(curNums);
+            const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+            document.getElementById('cur-slot-t').textContent=fmt(dt);
+          }
+          if(data.next?.length&&!isDirty){
+            nxtNums=data.next; buildED(nxtNums);
+          }
+        }
+      }
+    }
   },1000);
 }
 
-// ─── INIT ADMIN ───────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════════
+   INIT ADMIN
+════════════════════════════════════════════════════════════════ */
 async function initAdmin(){
   const now=new Date();
-  const data=await fetchBin();
-
+  nxtSlotDt=nextSlot(now);
+  const data=await getBin();
   if(data?.current?.length){
-    curNums      = data.current;
-    nextNums     = data.next?.length ? data.next : generateGrid();
-    lastSlotKey  = data.slotKey || currentSlotKey(now);
-    const dt     = data.currentDrawTime ? new Date(data.currentDrawTime) : now;
-    document.getElementById('cur-slot-time').textContent=formatTime(dt);
-    if(data.updatedAt) document.getElementById('last-pub').textContent='Last: '+new Date(data.updatedAt).toLocaleTimeString();
-    if(data.nextScheduledFor){
-      document.getElementById('nxt-badge').textContent='✓ Scheduled for '+formatTime(new Date(data.nextScheduledFor));
-    }
+    curNums=data.current; nxtNums=data.next?.length?data.next:genGrid();
+    lastSlotKey=data.slotKey||slotKey(now);
+    const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+    document.getElementById('cur-slot-t').textContent=fmt(dt);
+    if(data.updatedAt)document.getElementById('last-pub').textContent='Last: '+new Date(data.updatedAt).toLocaleTimeString();
+    if(data.nextScheduledFor)document.getElementById('nxt-badge').textContent='✓ Scheduled for '+fmt(new Date(data.nextScheduledFor));
   } else {
-    curNums  = generateGrid();
-    nextNums = generateGrid();
-    lastSlotKey = currentSlotKey(now);
-    document.getElementById('cur-slot-time').textContent=formatTime(now);
+    curNums=genGrid();nxtNums=genGrid();lastSlotKey=slotKey(now);
+    document.getElementById('cur-slot-t').textContent=fmt(now);
   }
-
-  buildROTable(curNums);
-  buildEDTable(nextNums);
-  setStatus(false);
-  startTicker();
+  buildRO(curNums);buildED(nxtNums);setStatus(false);startTicker();
+  // Default date filter: last 7 days
+  setLast7();
 }
 
-window.addEventListener('beforeunload',e=>{ if(isDirty){e.preventDefault();e.returnValue='';} });
+/* ════════════════════════════════════════════════════════════════
+   HISTORY & REPORTS
+════════════════════════════════════════════════════════════════ */
+let allHistory=[];
+
+async function loadHistory(){
+  const list=document.getElementById('hist-list');
+  list.innerHTML='<div class="hist-loading">Loading history…</div>';
+  const data=await getBin();
+  allHistory=(data?.history||[]).slice().reverse(); // newest first
+  if(allHistory.length===0){
+    list.innerHTML='<div class="hist-empty">No draw history yet. History is recorded automatically at each 15-min boundary.</div>';
+    updateSummary([]);return;
+  }
+  applyFilter();
+}
+
+function setLast7(){
+  const to=new Date(),from=new Date();
+  from.setDate(from.getDate()-6);
+  document.getElementById('h-from').value=fmtDate(from);
+  document.getElementById('h-to').value=fmtDate(to);
+}
+
+function setToday(){
+  const today=fmtDate(new Date());
+  document.getElementById('h-from').value=today;
+  document.getElementById('h-to').value=today;
+}
+
+function applyFilter(){
+  if(allHistory.length===0){loadHistory();return;}
+  const fromStr=document.getElementById('h-from').value;
+  const toStr=document.getElementById('h-to').value;
+  const from=fromStr?new Date(fromStr+'T00:00:00'):null;
+  const to=toStr?new Date(toStr+'T23:59:59'):null;
+  const filtered=allHistory.filter(h=>{
+    const d=new Date(h.drawTime);
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+  renderHistory(filtered,fromStr,toStr);
+}
+
+function updateSummary(records){
+  document.getElementById('h-total').textContent=records.length;
+  document.getElementById('h-auto').textContent=records.filter(r=>r.type==='auto').length;
+  document.getElementById('h-manual').textContent=records.filter(r=>r.type==='manual').length;
+  if(records.length===0){document.getElementById('h-range').textContent='—';return;}
+  const dates=records.map(r=>r.drawTime.slice(0,10));
+  const mn=[...dates].sort()[0], mx=[...dates].sort().pop();
+  document.getElementById('h-range').textContent=mn===mx?mn:`${mn} → ${mx}`;
+}
+
+function renderHistory(records,fromStr,toStr){
+  updateSummary(records);
+  const list=document.getElementById('hist-list');
+  if(records.length===0){
+    list.innerHTML=`<div class="hist-empty">No draws found for ${fromStr||'…'} → ${toStr||'…'}.<br>Try a wider date range.</div>`;return;
+  }
+  list.innerHTML='';
+  records.forEach((rec,i)=>{
+    const dt=new Date(rec.drawTime);
+    const div=document.createElement('div');div.className='hrec';
+    const typeLabel=rec.type==='manual'?'Manual':'Auto-Random';
+    div.innerHTML=`
+      <div class="hrec-header" onclick="toggleRec(this)">
+        <span class="hrec-key">${fmt(dt)}</span>
+        <span class="hrec-date">${fmtDate(dt)}</span>
+        <span class="hrec-type ${rec.type}">${typeLabel}</span>
+        <span class="hrec-arrow">▼</span>
+      </div>
+      <div class="hrec-body">${buildMiniTable(rec.numbers)}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleRec(header){header.parentElement.classList.toggle('open');}
+
+function buildMiniTable(nums){
+  if(!nums||!nums.length)return '<span style="color:var(--muted);font-family:var(--M);font-size:11px;">No data</span>';
+  let html='<table class="mini-table"><thead><tr><th style="min-width:20px;"></th>';
+  for(let c=0;c<10;c++)html+=`<th>${String.fromCharCode(65+c)}</th>`;
+  html+='</tr></thead><tbody>';
+  for(let r=0;r<10;r++){
+    html+=`<tr><td class="mrl">${r+1}</td>`;
+    for(let c=0;c<10;c++)html+=`<td class="mc">${(nums[r]||[])[c]||'----'}</td>`;
+    html+='</tr>';
+  }
+  html+='</tbody></table>';
+  return html;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DIRTY-CHECK ON UNLOAD
+════════════════════════════════════════════════════════════════ */
+window.addEventListener('beforeunload',e=>{if(isDirty){e.preventDefault();e.returnValue='';}});
 </script>
 </body>
 </html>
