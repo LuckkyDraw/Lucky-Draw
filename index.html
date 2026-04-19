@@ -302,76 +302,63 @@ function loadHistoryFromData(data){
 }
 
 /* ── STATE ── */
-let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
+let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,lastPoll=0;
 
-/* ── VIEWER SWAP: only re-renders, does NOT write history ── */
-async function doViewerSwap(now,remote){
-  if(swapBusy)return; swapBusy=true;
-  const key=slotKey(now);
-  const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
-  curNums=incoming; nxtNums=genGrid(); curKey=key; nxtSlotDt=nextSlot(now);
-  document.getElementById('cur-t').textContent=fmt(now);
-  buildTable(curNums,true);
-  // Viewer does NOT write to bin — admin owns history writes
-  setTimeout(()=>{swapBusy=false;},20000);
+/* ── applyRemote: single place that updates viewer UI from bin data ──
+   Only re-renders if slotKey actually changed — guarantees one update per slot. */
+function applyRemote(data, forceFlash){
+  if(!data?.current?.length)return;
+  const remoteKey=data.slotKey||null;
+  const changed=remoteKey&&remoteKey!==curKey;
+  if(!changed&&!forceFlash)return; // same slot, nothing to do
+  curNums=data.current;
+  nxtNums=data.next?.length?data.next:genGrid();
+  curKey=remoteKey;
+  const dt=data.currentDrawTime?new Date(data.currentDrawTime):new Date();
+  document.getElementById('cur-t').textContent=fmt(dt);
+  buildTable(curNums, changed); // flash animation only on real slot change
+  loadHistoryFromData(data);
 }
 
 /* ── INIT ── */
 async function init(){
-  const now=new Date(),ins=inSess(now),sk=slotKey(now);
+  const now=new Date(),ins=inSess(now);
   nxtSlotDt=nextSlot(now); setClosed(!ins);
+  document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
   const data=await getBin();
   if(data?.current?.length){
-    curNums=data.current; nxtNums=data.next?.length?data.next:genGrid(); curKey=data.slotKey||sk;
-    if(ins&&sk&&curKey&&curKey!==sk){await doViewerSwap(now,data);}
-    else{const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,false);}
-    loadHistoryFromData(data);
+    applyRemote(data,true); // force render on page load
+  } else if(ins){
+    // Bootstrap: no data yet, write once so admin can take over
+    curNums=genGrid(); nxtNums=genGrid(); curKey=slotKey(now);
+    document.getElementById('cur-t').textContent=fmt(now);
+    buildTable(curNums,false);
+    await putBin({current:curNums,next:nxtNums,
+      currentDrawTime:now.toISOString(),slotKey:curKey,
+      updatedAt:now.toISOString(),history:[]});
   } else {
-    if(ins){
-      curNums=genGrid();nxtNums=genGrid();curKey=sk;
-      document.getElementById('cur-t').textContent=fmt(now);buildTable(curNums,false);
-      await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:sk,updatedAt:now.toISOString(),history:[]});
-    } else {
-      buildTable(Array.from({length:10},()=>Array(10).fill('----')),false);
-      document.getElementById('cur-t').textContent='Closed';
-      document.getElementById('ov').style.display='none';
-    }
-    loadHistoryFromData(data);
+    buildTable(Array.from({length:10},()=>Array(10).fill('----')),false);
+    document.getElementById('cur-t').textContent='Closed';
+    document.getElementById('ov').style.display='none';
   }
+  loadHistoryFromData(data||{});
   setInterval(tick,1000);
 }
 
-/* ── TICK ── */
+/* ── TICK: countdown every 1s, poll remote every 2s ── */
 async function tick(){
-  const now=new Date(),ins=inSess(now),sk=slotKey(now);
+  const now=new Date(),ins=inSess(now);
   setClosed(!ins);
-  if(nxtSlotDt){
-    const diff=Math.max(0,Math.floor((nxtSlotDt-now)/1000));
-    const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
-    document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
-    document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
-  }
-  // Boundary: slot key changed → re-render only (admin writes history)
-  if(ins&&sk&&sk!==curKey&&!swapBusy){
-    const data=await getBin();await doViewerSwap(now,data);return;
-  }
-  // Poll every 5s to sync current chart and history
-  if(Date.now()-lastPoll>5000){
+  nxtSlotDt=nextSlot(now);
+  const diff=Math.max(0,Math.floor((nxtSlotDt-now)/1000));
+  const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
+  document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
+  document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
+
+  if(Date.now()-lastPoll>2000){
     lastPoll=Date.now();
     const data=await getBin();
-    if(data){
-      if(data.next?.length)nxtNums=data.next;
-      // Another tab (admin) already swapped
-      if(data.slotKey&&data.slotKey!==curKey&&ins&&!swapBusy){
-        curKey=data.slotKey;curNums=data.current||curNums;
-        nxtNums=data.next?.length?data.next:genGrid();
-        nxtSlotDt=nextSlot(now);
-        const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
-        document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,true);
-      }
-      // Refresh history
-      loadHistoryFromData(data);
-    }
+    if(data) applyRemote(data,false); // only flashes if slotKey changed
   }
 }
 
