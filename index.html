@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0b1e;--card:#1a1640;--border:rgba(120,100,255,0.2);
+  --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;--border:rgba(120,100,255,0.2);
   --purple:#7c6dfa;--glow:rgba(124,109,250,0.3);
   --gold:#f5c200;--text:#e8e4ff;--muted:#7a749a;
   --hover:rgba(124,109,250,0.12);
@@ -21,7 +21,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
              radial-gradient(ellipse 50% 30% at 80% 90%,rgba(245,194,0,.06) 0%,transparent 60%);}
 .page{position:relative;z-index:1;width:100%;max-width:960px;}
 
-/* header */
+/* Header */
 header{text-align:center;margin-bottom:1.5rem;animation:fD .6s ease both;}
 .gems{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:5px;}
 .gem{width:16px;height:16px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;}
@@ -29,13 +29,13 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-tr
   color:#fff;text-shadow:0 0 40px var(--glow);}
 .tagline{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:var(--M);}
 
-/* banners */
+/* Banners */
 .banner{display:none;border-radius:10px;padding:.6rem 1.2rem;margin-bottom:.9rem;
   font-family:var(--M);font-size:11px;letter-spacing:1px;text-align:center;}
 #b-offline{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#f87171;}
 #b-closed{background:rgba(124,109,250,.08);border:1px solid rgba(124,109,250,.2);color:var(--muted);}
 
-/* draw panel */
+/* Draw Panel */
 .dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);
   border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;
   margin-bottom:1.4rem;animation:fU .5s .1s ease both;}
@@ -45,7 +45,7 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-tr
 .dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);letter-spacing:1px;line-height:1.2;}
 .dv.gold{color:var(--gold);}
 
-/* grid */
+/* Grid Wrapper */
 .gw{background:var(--card);border:1px solid var(--border);border-radius:16px;
   padding:1.2rem;overflow-x:auto;position:relative;animation:fU .5s .2s ease both;}
 .ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;
@@ -63,6 +63,23 @@ td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;
 td.c:hover{background:var(--hover);transform:scale(1.05);z-index:2;border-color:var(--purple);}
 td.c.fl{animation:flash .9s ease forwards;}
 
+/* History List Styles */
+.h-item {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+.h-item:hover { border-color: var(--purple); background: var(--hover); }
+.h-time { font-family: var(--M); font-size: 13px; font-weight: 700; color: var(--gold); }
+.h-date { font-family: var(--M); font-size: 11px; color: var(--muted); }
+.h-badge { font-size: 9px; font-family: var(--M); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted); }
+.h-manual { color: var(--purple); border-color: var(--glow); }
+
 footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
   color:var(--muted);letter-spacing:1px;animation:fU .5s .3s ease both;}
 
@@ -72,13 +89,11 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
 @keyframes flash{0%{background:rgba(124,109,250,.6);color:var(--gold);}
   70%{background:rgba(124,109,250,.15);}100%{background:transparent;color:#fff;}}
 
-/* mobile */
 @media(max-width:620px){
   body{padding:1.2rem .6rem;}
   .dp{grid-template-columns:1fr 1fr;}
   .db{padding:0 .9rem;}
-  .db:first-child{grid-column:span 2;border-right:none;
-    border-bottom:1px solid var(--border);padding-bottom:.8rem;margin-bottom:.1rem;}
+  .db:first-child{grid-column:span 2;border-right:none;border-bottom:1px solid var(--border);padding-bottom:.8rem;margin-bottom:.1rem;}
   .db:nth-child(2){border-right:1px solid var(--border);}
   .dv{font-size:1.15rem;}
   td.c{font-size:11px;padding:6px 1px;}
@@ -96,16 +111,29 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
   </header>
   <div class="banner" id="b-offline">⚠ Connection lost — retrying…</div>
   <div class="banner" id="b-closed">🕘 Draw closed. Opens at 9:30 AM.</div>
+  
   <div class="dp">
     <div class="db"><span class="dl">Current Draw</span><span class="dv gold" id="cur-t">—</span></div>
     <div class="db"><span class="dl">Next Draw In</span><span class="dv" id="cd">—</span></div>
     <div class="db"><span class="dl">Next Draw At</span><span class="dv" id="nxt-t">—</span></div>
   </div>
+
   <div class="gw">
     <div class="ov" id="ov"><div class="spin"></div><span class="ov-txt">Loading…</span></div>
     <table><thead id="th"></thead><tbody id="tb"></tbody></table>
   </div>
-  <footer>&copy; <span id="yr"></span> Lucky Draw — All results randomly generated for entertainment only.</footer>
+
+  <div class="gw" style="margin-top: 1.4rem; animation-delay: 0.3s;">
+    <div class="dl" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <span>Recent History (Last 7 Days)</span>
+      <button onclick="loadHistory()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Refresh</button>
+    </div>
+    <div id="hist-container" style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="ov-txt" style="text-align: center; padding: 1rem;">Loading history...</div>
+    </div>
+  </div>
+
+  <footer>&copy; <span id="yr"></span> Lucky Draw — All results generated for entertainment.</footer>
 </div>
 <script>
 /* ── CONFIG ── */
@@ -123,7 +151,6 @@ function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%
 function mod(d){return d.getHours()*60+d.getMinutes();}
 function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
 
-/* slotKey: "YYYY-MM-DD-HHmm" of the current 15-min slot start, null if outside session */
 function slotKey(d){
   const m=mod(d);
   if(m<DAY_START||m>=DAY_END) return null;
@@ -133,7 +160,6 @@ function slotKey(d){
   return `${y}-${mo}-${dd}-${pad(Math.floor(sm/60))}${pad(sm%60)}`;
 }
 
-/* next slot boundary strictly after d */
 function nextSlot(d){
   const m=mod(d);
   let nm;
@@ -146,10 +172,9 @@ function nextSlot(d){
   const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
 }
 
-/* ── GRID GEN ── */
 function genGrid(){return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(r*10*100+c*100+Math.floor(Math.random()*100))));}
 
-/* ── BIN ── */
+/* ── BIN I/O ── */
 async function getBin(){
   try{
     const r=await fetch(`${LIVE_URL}/latest`,{headers:{'X-Master-Key':LIVE_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
@@ -160,9 +185,10 @@ async function putBin(p){
   try{const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});return r.ok;}catch{return false;}
 }
 
-/* ── UI ── */
+/* ── UI HELPERS ── */
 function setOff(v){document.getElementById('b-offline').style.display=v?'block':'none';}
 function setClosed(v){document.getElementById('b-closed').style.display=v?'block':'none';}
+
 function buildTable(nums,flash){
   const th=document.getElementById('th'),tb=document.getElementById('tb');
   th.innerHTML='';tb.innerHTML='';
@@ -184,30 +210,55 @@ function buildTable(nums,flash){
   document.getElementById('ov').style.display='none';
 }
 
-/* ── STATE ── */
+/* ── HISTORY LOGIC ── */
+async function loadHistory() {
+  const container = document.getElementById('hist-container');
+  const data = await getBin();
+  if (!data || !data.history || data.history.length === 0) {
+    container.innerHTML = '<div class="ov-txt" style="text-align:center; padding:1rem;">No history found.</div>';
+    return;
+  }
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const history = data.history.filter(h => new Date(h.drawTime) >= sevenDaysAgo).reverse();
+  container.innerHTML = '';
+  history.forEach(item => {
+    const dt = new Date(item.drawTime);
+    const isManual = item.type === 'manual';
+    const div = document.createElement('div');
+    div.className = 'h-item';
+    div.innerHTML = `
+      <div><div class="h-time">${fmt(dt)}</div><div class="h-date">${dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</div></div>
+      <div class="h-badge ${isManual?'h-manual':''}">${isManual?'Official':'Auto'}</div>`;
+    container.appendChild(div);
+  });
+}
+
+/* ── STATE & SYNC ── */
 let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
 
-/* ── SWAP ── */
 async function doSwap(now,remote){
   if(swapBusy)return; swapBusy=true;
   const key=slotKey(now);
-  // Use admin-staged next if available, else auto-random
   const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
   curNums=incoming; nxtNums=genGrid(); curKey=key; nxtSlotDt=nextSlot(now);
   document.getElementById('cur-t').textContent=fmt(now);
   buildTable(curNums,true);
-  const ok=await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:key,updatedAt:now.toISOString()});
+  const histEntry = { slotKey:key, drawTime:now.toISOString(), numbers:JSON.parse(JSON.stringify(curNums)), type:'auto' };
+  let hist = remote?.history || [];
+  hist.push(histEntry); if(hist.length>200) hist.splice(0,hist.length-200);
+  await putBin({current:curNums,next:nxtNums,currentDrawTime:now.toISOString(),slotKey:key,updatedAt:now.toISOString(),history:hist});
+  loadHistory();
   setTimeout(()=>{swapBusy=false;},20000);
 }
 
-/* ── INIT ── */
 async function init(){
   const now=new Date(),ins=inSess(now),sk=slotKey(now);
   nxtSlotDt=nextSlot(now); setClosed(!ins);
+  loadHistory();
   const data=await getBin();
   if(data?.current?.length){
     curNums=data.current; nxtNums=data.next?.length?data.next:genGrid(); curKey=data.slotKey||sk;
-    // If page loaded mid-session with a stale slot, catch up immediately
     if(ins&&sk&&curKey&&curKey!==sk){await doSwap(now,data);}
     else{const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;document.getElementById('cur-t').textContent=fmt(dt);buildTable(curNums,false);}
   } else {
@@ -217,7 +268,6 @@ async function init(){
   setInterval(tick,1000);
 }
 
-/* ── TICK (every 1 s) ── */
 async function tick(){
   const now=new Date(),ins=inSess(now),sk=slotKey(now);
   setClosed(!ins);
@@ -227,23 +277,13 @@ async function tick(){
     document.getElementById('cd').textContent=ins?`${hh}h ${pad(mm)}m ${pad(ss)}s`:'—';
     document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
   }
-  // Boundary: slot key changed → swap
-  if(ins&&sk&&sk!==curKey&&!swapBusy){
-    const data=await getBin(); await doSwap(now,data); return;
-  }
-  // Poll every 3 s
+  if(ins&&sk&&sk!==curKey&&!swapBusy){ const data=await getBin(); await doSwap(now,data); return; }
   if(Date.now()-lastPoll>3000){
-    lastPoll=Date.now();
-    const data=await getBin();
-    if(data){
-      if(data.next?.length) nxtNums=data.next;
-      // Another tab already did the swap — just re-render
-      if(data.slotKey&&data.slotKey!==curKey&&ins&&!swapBusy){
-        curKey=data.slotKey; curNums=data.current||curNums; nxtNums=data.next?.length?data.next:genGrid();
-        nxtSlotDt=nextSlot(now);
-        const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
-        document.getElementById('cur-t').textContent=fmt(dt); buildTable(curNums,true);
-      }
+    lastPoll=Date.now(); const data=await getBin();
+    if(data && data.slotKey!==curKey && ins && !swapBusy){
+      curKey=data.slotKey; curNums=data.current; nxtSlotDt=nextSlot(now);
+      document.getElementById('cur-t').textContent=fmt(new Date(data.currentDrawTime));
+      buildTable(curNums,true); loadHistory();
     }
   }
 }
