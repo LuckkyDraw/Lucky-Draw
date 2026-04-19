@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucky Draw — Live Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0b1e;--card:#1a1640;--border:rgba(120,100,255,0.2);
+    --gold:#f5c200;--gold-dim:rgba(245,194,0,0.15);
+    --purple:#7c6dfa;--purple-glow:rgba(124,109,250,0.3);
+    --text:#e8e4ff;--text-muted:#7a749a;--cell-hover:rgba(124,109,250,0.12);
+    --font-display:'Rajdhani',sans-serif;--font-mono:'Share Tech Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,109,250,0.12) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 80% 90%,rgba(245,194,0,0.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  .page{position:relative;z-index:1;width:100%;max-width:900px;}
+  header{text-align:center;margin-bottom:2rem;animation:fadeDown 0.6s ease both;}
+  .logo-line{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;}
+  .gem{width:18px;height:18px;background:var(--gold);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);opacity:.9;}
+  header h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;text-shadow:0 0 40px var(--purple-glow);}
+  header p.tagline{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);font-family:var(--font-mono);}
+  .draw-panel{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 2rem;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;animation:fadeUp 0.5s .1s ease both;}
+  .draw-block{display:flex;flex-direction:column;gap:4px;}
+  .draw-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);font-family:var(--font-mono);}
+  .draw-value{font-size:1.6rem;font-weight:700;color:#fff;font-family:var(--font-mono);letter-spacing:2px;}
+  .draw-value.gold{color:var(--gold);}
+  .pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;background:#4ade80;animation:pulse 1.4s ease-in-out infinite;}
+  .status-label{font-size:12px;font-family:var(--font-mono);letter-spacing:1px;}
+  .grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;overflow-x:auto;animation:fadeUp 0.5s .2s ease both;position:relative;}
+  .loading-overlay{position:absolute;inset:0;background:rgba(13,11,30,.8);display:flex;align-items:center;justify-content:center;border-radius:16px;z-index:10;font-family:var(--font-mono);font-size:13px;color:var(--text-muted);letter-spacing:2px;}
+  table{width:100%;border-collapse:collapse;min-width:560px;}
+  th{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:6px 4px;text-align:center;letter-spacing:1px;border-bottom:1px solid var(--border);}
+  .row-label{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:0 10px 0 0;white-space:nowrap;}
+  td.cell{border:1px solid var(--border);text-align:center;padding:10px 4px;font-family:var(--font-mono);font-size:14px;color:var(--text);cursor:default;transition:background .15s,transform .1s;position:relative;min-width:72px;}
+  td.cell:hover{background:var(--cell-hover);transform:scale(1.04);z-index:2;border-color:var(--purple);}
+  td.cell.highlighted{background:var(--gold-dim);border-color:rgba(245,194,0,.4);}
+  td.cell.highlighted .hi{color:var(--gold);font-weight:700;}
+  td.cell.new-flash{animation:cellFlash .6s ease;}
+  td.cell.edited-flash{animation:editFlash 1s ease;}
+  .controls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:1.5rem;flex-wrap:wrap;animation:fadeUp 0.5s .3s ease both;}
+  .toggle-row{display:flex;align-items:center;gap:8px;font-size:12px;font-family:var(--font-mono);color:var(--text-muted);cursor:pointer;user-select:none;}
+  .toggle-row input{accent-color:var(--purple);width:16px;height:16px;cursor:pointer;}
+  .last-updated{text-align:center;margin-top:1rem;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:1px;}
+  footer{text-align:center;margin-top:1.5rem;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:1px;animation:fadeUp 0.5s .4s ease both;}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.5)}50%{box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+  @keyframes cellFlash{0%{background:rgba(245,194,0,.35)}100%{background:transparent}}
+  @keyframes editFlash{0%{background:rgba(124,109,250,.5);transform:scale(1.06)}50%{background:rgba(124,109,250,.2)}100%{background:transparent;transform:scale(1)}}
+  @media(max-width:600px){.draw-panel{flex-direction:column;align-items:flex-start;}td.cell{font-size:12px;padding:8px 2px;min-width:54px;}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo-line"><div class="gem"></div><h1>Lucky Draw</h1><div class="gem"></div></div>
+    <p class="tagline">Live Number Chart &mdash; Refreshes Every 15 Minutes</p>
+  </header>
+  <div class="draw-panel">
+    <div class="draw-block">
+      <span class="draw-label">Current Draw</span>
+      <span class="draw-value gold" id="draw-time">—</span>
+    </div>
+    <div class="draw-block">
+      <span class="draw-label">Next Draw In</span>
+      <span class="draw-value" id="countdown">—</span>
+    </div>
+    <div class="draw-block">
+      <span class="draw-label">Next Draw At</span>
+      <span class="draw-value" id="next-time">—</span>
+    </div>
+    <div class="draw-block" style="align-items:flex-end;">
+      <span class="status-label" id="live-status" style="color:#4ade80;">
+        <span class="pulse-dot" id="live-dot"></span><span id="live-text">Connecting…</span>
+      </span>
+    </div>
+  </div>
+  <div class="grid-wrap">
+    <div class="loading-overlay" id="loading-overlay">Loading draw data…</div>
+    <table id="grid"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+  </div>
+  <div class="controls">
+    <label class="toggle-row">
+      <input type="checkbox" id="hl-toggle" checked onchange="toggleHighlight()"> Show Highlights
+    </label>
+  </div>
+  <p class="last-updated" id="last-updated"></p>
+  <footer>&copy; <span id="year"></span> Lucky Draw &mdash; All results are randomly generated for entertainment only.</footer>
+</div>
+<script>
+  const API_KEY='$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
+  const BIN_ID='69e4a9f9aaba882197157ed4';
+  const BIN_URL=`https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+  document.getElementById('year').textContent=new Date().getFullYear();
+
+  let numbers=[],highlights=new Set(),hlPositions={},showHighlight=true,nextDraw=null,lastUpdatedAt=null;
+
+  const pad=n=>String(n).padStart(2,'0');
+  const pad4=n=>String(n).padStart(4,'0');
+  function formatTime(d){let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return`${pad(h)}:${pad(m)} ${ap}`;}
+  function getNextDrawTime(){const now=new Date(),next=new Date(now);next.setMinutes(now.getMinutes()+(15-now.getMinutes()%15),0,0);return next;}
+  function randInRange(p){const lo=p*100,hi=lo+99;return pad4(Math.floor(Math.random()*(hi-lo+1))+lo);}
+
+  function setStatus(state){
+    const dot=document.getElementById('live-dot'),txt=document.getElementById('live-text'),lbl=document.getElementById('live-status');
+    if(state==='live'){dot.style.background='#4ade80';dot.style.animation='pulse 1.4s ease-in-out infinite';lbl.style.color='#4ade80';txt.textContent='Live';}
+    else if(state==='syncing'){dot.style.background='var(--gold)';dot.style.animation='none';lbl.style.color='var(--gold)';txt.textContent='Syncing…';}
+    else{dot.style.background='#f87171';dot.style.animation='none';lbl.style.color='#f87171';txt.textContent='Offline';}
+  }
+
+  async function fetchFromBin(){
+    try{
+      const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
+      if(!r.ok)throw new Error();
+      return await r.json();
+    }catch{return null;}
+  }
+
+  async function pushToBin(payload){
+    try{
+      await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(payload)});
+    }catch{}
+  }
+
+  function hlNum(num,r,c){const pos=(hlPositions[`${r},${c}`]??1);return num.slice(0,pos)+`<span class="hi">${num.slice(pos,pos+2)}</span>`+num.slice(pos+2);}
+
+  function buildTable(flashEdited){
+    const thead=document.getElementById('thead'),tbody=document.getElementById('tbody');
+    thead.innerHTML='';tbody.innerHTML='';
+    const hr=document.createElement('tr');
+    hr.appendChild(document.createElement('th'));
+    for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
+    thead.appendChild(hr);
+    for(let r=0;r<10;r++){
+      const tr=document.createElement('tr');
+      const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
+      for(let c=0;c<10;c++){
+        const td=document.createElement('td');td.className='cell';
+        const num=(numbers[r]||[])[c]||'----';
+        const isHl=showHighlight&&highlights.has(`${r},${c}`);
+        if(isHl){td.classList.add('highlighted');td.innerHTML=hlNum(num,r,c);}
+        else td.textContent=num;
+        if(flashEdited&&flashEdited.has(`${r},${c}`))td.classList.add('edited-flash');
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+  }
+
+  function flashAll(){document.querySelectorAll('td.cell').forEach((td,i)=>{td.classList.remove('new-flash');setTimeout(()=>td.classList.add('new-flash'),i*8);});}
+
+  function applyData(data,flashEdited){
+    const prev=numbers.map(r=>[...r]);
+    numbers=data.numbers||numbers;
+    highlights=new Set(data.highlights||[]);
+    hlPositions=data.hlPositions||{};
+    lastUpdatedAt=data.updatedAt||null;
+    if(data.drawTime)document.getElementById('draw-time').textContent=formatTime(new Date(data.drawTime));
+    if(data.updatedAt)document.getElementById('last-updated').textContent='Last updated: '+new Date(data.updatedAt).toLocaleString();
+    buildTable(flashEdited);
+    document.getElementById('loading-overlay').style.display='none';
+  }
+
+  async function autoRegenerate(){
+    const nums=[],hls=new Set(),hlPos={};
+    for(let r=0;r<10;r++){const row=[];for(let c=0;c<10;c++)row.push(randInRange(r*10+c));nums.push(row);}
+    const count=Math.floor(Math.random()*6)+5;
+    while(hls.size<count){const r=Math.floor(Math.random()*10),c=Math.floor(Math.random()*10);const k=`${r},${c}`;hls.add(k);hlPos[k]=Math.floor(Math.random()*3);}
+    const now=new Date();
+    const payload={numbers:nums,highlights:[...hls],hlPositions:hlPos,drawTime:now.toISOString(),updatedAt:now.toISOString()};
+    numbers=nums;highlights=hls;hlPositions=hlPos;lastUpdatedAt=payload.updatedAt;
+    document.getElementById('draw-time').textContent=formatTime(now);
+    buildTable(null);flashAll();nextDraw=getNextDrawTime();
+    setStatus('syncing');await pushToBin(payload);setStatus('live');
+  }
+
+  function toggleHighlight(){showHighlight=document.getElementById('hl-toggle').checked;buildTable(null);}
+
+  async function pollRemote(){
+    const data=await fetchFromBin();
+    if(!data){setStatus('offline');return;}
+    setStatus('live');
+    if(data.updatedAt&&data.updatedAt!==lastUpdatedAt){
+      const changed=new Set();
+      if(data.numbers&&numbers.length)
+        for(let r=0;r<10;r++)for(let c=0;c<10;c++)
+          if((data.numbers[r]||[])[c]!==(numbers[r]||[])[c])changed.add(`${r},${c}`);
+      applyData(data,changed.size?changed:null);
+    }
+  }
+
+  async function init(){
+    setStatus('syncing');
+    nextDraw=getNextDrawTime();
+    document.getElementById('next-time').textContent=formatTime(nextDraw);
+    const data=await fetchFromBin();
+    if(data&&data.numbers&&data.numbers.length){
+      applyData(data,null);flashAll();setStatus('live');
+    } else {
+      await autoRegenerate();setStatus('live');
+    }
+    setInterval(pollRemote,5000);
+    setInterval(tick,1000);
+  }
+
+  function tick(){
+    if(!nextDraw)return;
+    const now=new Date();
+    let diff=Math.max(0,Math.floor((nextDraw-now)/1000));
+    if(diff===0){autoRegenerate();nextDraw=getNextDrawTime();return;}
+    const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
+    document.getElementById('countdown').textContent=`${hh}h ${pad(mm)}m ${pad(ss)}s`;
+    document.getElementById('next-time').textContent=formatTime(nextDraw);
+  }
+
+  init();
+</script>
+</body>
+</html>
