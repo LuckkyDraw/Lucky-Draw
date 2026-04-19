@@ -534,49 +534,58 @@ async function publishNext(){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SLOT SWAP (admin side)
+   SLOT SWAP (admin — single authoritative writer)
+   Uses a swapLock field in the bin so only ONE tab ever writes.
 ════════════════════════════════════════════════════════════════ */
 async function doSwap(now, remote){
-  if(swapBusy)return; swapBusy=true;
+  if(swapBusy)return;
   const key=slotKey(now);
-  const incoming=(remote?.next?.length)?remote.next:(nxtNums.length?nxtNums:genGrid());
-  const wasManual=!!(remote?.nextScheduledFor);
+  if(!key)return;
+
+  // Atomic lock: read remote, check if another tab already swapped this slot
+  const fresh=remote||await getBin();
+  if(fresh?.slotKey===key){
+    // Already done by another tab — just adopt the remote state
+    curNums=fresh.current||curNums;
+    nxtNums=fresh.next?.length?fresh.next:genGrid();
+    lastSlotKey=key; isDirty=false; setStatus(false);
+    const slotDt=slotStartTime(now)||now;
+    buildRO(curNums); buildED(nxtNums);
+    document.getElementById('cur-slot-t').textContent=fmt(slotDt);
+    document.getElementById('nxt-badge').textContent='Awaiting publish';
+    return;
+  }
+
+  swapBusy=true;
+  const incoming=(fresh?.next?.length)?fresh.next:(nxtNums.length?nxtNums:genGrid());
+  const wasManual=!!(fresh?.nextScheduledFor);
+  const slotDt=slotStartTime(now)||now;
 
   curNums=incoming; nxtNums=genGrid(); lastSlotKey=key; nxtSlotDt=nextSlot(now);
   isDirty=false; setStatus(false);
 
-  // Archive this draw to history
-  const histEntry={
-    slotKey:key,
-    drawTime:now.toISOString(),
-    numbers:JSON.parse(JSON.stringify(curNums)),
-    type:wasManual?'manual':'auto'
-  };
-  const existing=await getBin();
-  const hist=existing?.history||[];
-  // Deduplicate: only add if this slotKey isn't already the last entry
+  // Archive to history — deduped by slotKey
+  const hist=fresh?.history||[];
   const lastEntry=hist[hist.length-1];
   if(!lastEntry||lastEntry.slotKey!==key){
-    hist.push(histEntry);
+    hist.push({slotKey:key,drawTime:slotDt.toISOString(),
+      numbers:JSON.parse(JSON.stringify(curNums)),type:wasManual?'manual':'auto'});
     if(hist.length>200)hist.splice(0,hist.length-200);
   }
 
-  // Update bin: new current + fresh next pre-seeded + history appended
-  await putBin({
-    current:curNums,next:nxtNums,
-    currentDrawTime:now.toISOString(),
-    slotKey:key,updatedAt:now.toISOString(),
-    history:hist
-  });
+  // Write new state — slotKey acts as the lock so viewers won't re-swap
+  await putBin({current:curNums,next:nxtNums,
+    currentDrawTime:slotDt.toISOString(),
+    slotKey:key,updatedAt:slotDt.toISOString(),history:hist});
 
   // Update UI
-  buildRO(curNums);buildED(nxtNums);
-  const slotDt=slotStartTime(now)||now;
+  buildRO(curNums); buildED(nxtNums);
   document.getElementById('cur-slot-t').textContent=fmt(slotDt);
+  document.getElementById('nxt-slot-t').textContent=fmt(nextSlot(now));
   document.getElementById('nxt-badge').textContent='Awaiting publish';
   showToast(`Draw advanced to ${fmt(slotDt)}`,false,true);
 
-  setTimeout(()=>{swapBusy=false;},20000);
+  swapBusy=false; // release immediately — slotKey lock in bin prevents re-entry
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -595,9 +604,9 @@ function showToast(msg,isErr,isOk){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   TICKER + AUTO-POLL  ← THIS IS THE KEY FIX
-   Every second: countdown + session label
-   Every 3 s: fetch bin, check slotKey, auto-update both grids
+   TICKER + AUTO-POLL
+   Every 1s: countdown + session label + boundary check
+   Every 2s: poll bin for remote changes
 ════════════════════════════════════════════════════════════════ */
 function startTicker(){
   if(tickerRunning)return; tickerRunning=true;
@@ -616,40 +625,40 @@ function startTicker(){
     sl.style.color=ins?'var(--success)':'var(--danger)';
     sl.textContent=ins?'🟢 Session active':'🔴 Session closed (9:30 AM – 9:30 PM)';
 
-    // Boundary: slot key changed → trigger swap
+    // Boundary: new slot detected → swap (doSwap handles dedup via slotKey lock)
     if(ins&&sk&&sk!==lastSlotKey&&!swapBusy){
-      const data=await getBin(); await doSwap(now,data); return;
+      await doSwap(now,null); return;
     }
 
-    // Fast poll every 3 s — sync changes from index.html or another admin tab
-    if(Date.now()-lastPoll>3000){
+    // Poll every 2s — sync UI if remote changed
+    if(Date.now()-lastPoll>2000){
       lastPoll=Date.now();
       const data=await getBin();
-      if(data){
-        // Remote slot advanced (another tab or viewer did the swap)
-        if(data.slotKey&&data.slotKey!==lastSlotKey&&!swapBusy){
-          curNums=data.current||curNums;
-          nxtNums=data.next?.length?data.next:genGrid();
-          lastSlotKey=data.slotKey;
-          isDirty=false; // slot changed — edits are now stale, safe to refresh
-          buildRO(curNums);
-          buildED(nxtNums); // always refresh next-draw grid on slot advance
-          const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
-          document.getElementById('cur-slot-t').textContent=fmt(dt);
-          document.getElementById('nxt-badge').textContent='Awaiting publish';
-        } else {
-          // Same slot: always update current read-only grid
-          if(data.current?.length){
-            curNums=data.current;
-            buildRO(curNums);
-            const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
-            document.getElementById('cur-slot-t').textContent=fmt(dt);
-          }
-          // Only overwrite next-draw grid if admin hasn't started editing
-          if(data.next?.length&&!isDirty){
-            nxtNums=data.next; buildED(nxtNums);
-          }
-        }
+      if(!data)return;
+
+      // Remote slot is newer (another tab wrote it)
+      if(data.slotKey&&data.slotKey!==lastSlotKey){
+        curNums=data.current||curNums;
+        nxtNums=data.next?.length?data.next:genGrid();
+        lastSlotKey=data.slotKey;
+        isDirty=false; setStatus(false);
+        buildRO(curNums); buildED(nxtNums);
+        const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+        document.getElementById('cur-slot-t').textContent=fmt(dt);
+        document.getElementById('nxt-slot-t').textContent=fmt(nextSlot(now));
+        document.getElementById('nxt-badge').textContent='Awaiting publish';
+        return;
+      }
+
+      // Same slot — update read-only side always
+      if(data.current?.length){
+        curNums=data.current; buildRO(curNums);
+        const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
+        document.getElementById('cur-slot-t').textContent=fmt(dt);
+      }
+      // Only refresh editable grid if admin hasn't started typing
+      if(data.next?.length&&!isDirty){
+        nxtNums=data.next; buildED(nxtNums);
       }
     }
   },1000);
