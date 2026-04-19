@@ -3,65 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lucky Draw — Admin Panel</title>
+<title>Lucky Draw — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;
-    --border:rgba(120,100,255,0.2);--border-strong:rgba(120,100,255,0.5);
+    --border:rgba(120,100,255,0.2);--border-hi:rgba(120,100,255,0.5);
     --gold:#f5c200;--gold-dim:rgba(245,194,0,0.1);
     --purple:#7c6dfa;--purple-dim:rgba(124,109,250,0.15);
-    --text:#e8e4ff;--text-muted:#7a749a;
+    --text:#e8e4ff;--muted:#7a749a;
     --danger:#f87171;--danger-dim:rgba(248,113,113,0.1);
     --success:#4ade80;--success-dim:rgba(74,222,128,0.1);
-    --font-display:'Rajdhani',sans-serif;--font-mono:'JetBrains Mono',monospace;
+    --font:'Rajdhani',sans-serif;--mono:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,109,250,0.1) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 85% 85%,rgba(248,113,113,0.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
-  .page{position:relative;z-index:1;width:100%;max-width:980px;}
+  body{
+    background:var(--bg);color:var(--text);font-family:var(--font);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    padding:2rem 1rem;overflow-x:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,109,250,0.1) 0%,transparent 60%),
+      radial-gradient(ellipse 40% 30% at 85% 85%,rgba(248,113,113,0.05) 0%,transparent 60%);
+    pointer-events:none;z-index:0;
+  }
+  .page{position:relative;z-index:1;width:100%;max-width:1000px;}
 
-  /* ── Login ── */
+  /* ── LOGIN ── */
   #login-screen{display:flex;align-items:center;justify-content:center;min-height:90vh;animation:fadeUp .5s ease both;}
-  .login-card{background:var(--card);border:1px solid var(--border-strong);border-radius:20px;padding:2.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;}
+  .login-card{
+    background:var(--card);border:1px solid var(--border-hi);border-radius:20px;
+    padding:2.5rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.25rem;
+  }
   .login-title{font-size:1.4rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;text-align:center;}
-  .admin-badge{display:inline-block;background:var(--danger-dim);border:1px solid rgba(248,113,113,0.3);border-radius:20px;font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--danger);padding:3px 12px;text-align:center;}
-  .field-label{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--text-muted);margin-bottom:6px;}
-  .field-input{width:100%;background:#0f0c24;border:1px solid var(--border-strong);border-radius:8px;padding:12px 16px;font-family:var(--font-mono);font-size:14px;color:#fff;outline:none;transition:border-color .2s;}
+  .admin-badge{
+    display:inline-block;background:var(--danger-dim);border:1px solid rgba(248,113,113,0.3);
+    border-radius:20px;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--danger);
+    padding:3px 12px;text-align:center;
+  }
+  .field-label{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
+  .field-input{
+    width:100%;background:#0f0c24;border:1px solid var(--border-hi);border-radius:8px;
+    padding:12px 16px;font-family:var(--mono);font-size:14px;color:#fff;outline:none;
+    transition:border-color .2s;
+  }
   .field-input:focus{border-color:var(--purple);}
-  .login-btn{width:100%;background:var(--purple);border:none;border-radius:8px;padding:13px;font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity .2s;}
+  .login-btn{
+    width:100%;background:var(--purple);border:none;border-radius:8px;padding:13px;
+    font-family:var(--font);font-size:14px;font-weight:700;letter-spacing:3px;
+    text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity .2s;
+  }
   .login-btn:hover{opacity:.85;}
-  .login-error{font-family:var(--font-mono);font-size:12px;color:var(--danger);text-align:center;display:none;}
+  .login-error{font-family:var(--mono);font-size:12px;color:var(--danger);text-align:center;display:none;}
 
-  /* ── Admin ── */
+  /* ── ADMIN PANEL ── */
   #admin-panel{display:none;width:100%;}
   header{text-align:center;margin-bottom:1.5rem;animation:fadeDown .5s ease both;}
   .logo-line{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;}
-  header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
+  header h1{font-size:clamp(1.4rem,4vw,2.1rem);font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#fff;}
 
-  /* ── Slot tabs ── */
-  .slot-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;animation:fadeUp .4s .1s ease both;}
-  @media(max-width:700px){.slot-row{grid-template-columns:1fr;}}
-
-  .slot-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:6px;}
-  .slot-card.next-slot{border-color:rgba(245,194,0,0.35);}
-  .slot-title{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);}
-  .slot-time{font-size:1.4rem;font-weight:700;font-family:var(--font-mono);color:#fff;letter-spacing:2px;}
+  /* ── Slot row ── */
+  .slot-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;animation:fadeUp .4s .1s ease both;}
+  .slot-card{
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:1.1rem 1.4rem;display:flex;flex-direction:column;gap:5px;
+  }
+  .slot-card.next{border-color:rgba(245,194,0,0.35);}
+  .slot-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+  .slot-time{font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#fff;letter-spacing:2px;}
   .slot-time.gold{color:var(--gold);}
-  .slot-badge{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-top:2px;}
+  .slot-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-top:2px;width:fit-content;}
   .slot-badge.live{background:rgba(74,222,128,0.12);color:var(--success);border:1px solid rgba(74,222,128,0.3);}
   .slot-badge.staged{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(245,194,0,0.3);}
 
   /* ── Countdown ── */
-  .countdown-bar{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);animation:fadeUp .4s .15s ease both;}
-  .countdown-val{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:2px;min-width:90px;}
-  .countdown-note{font-size:11px;color:var(--text-muted);}
+  .cdbar{
+    background:var(--card2);border:1px solid var(--border);border-radius:10px;
+    padding:.7rem 1.2rem;margin-bottom:1rem;
+    display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+    animation:fadeUp .4s .15s ease both;
+  }
+  .cdval{font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:2px;min-width:90px;}
+  #session-status{font-size:11px;color:var(--gold);margin-left:auto;}
 
   /* ── Toolbar ── */
-  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;animation:fadeUp .4s .2s ease both;}
-  .toolbar-label{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:2px;white-space:nowrap;}
+  .toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:.9rem 1.2rem;margin-bottom:1rem;animation:fadeUp .4s .2s ease both;
+  }
+  .tlabel{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:2px;white-space:nowrap;}
   .spacer{flex:1;}
-  .btn{font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--border);border-radius:8px;padding:8px 18px;background:transparent;color:var(--text);cursor:pointer;transition:all .18s;white-space:nowrap;}
+  .btn{
+    font-family:var(--font);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+    border:1px solid var(--border);border-radius:8px;padding:8px 16px;
+    background:transparent;color:var(--text);cursor:pointer;transition:all .18s;white-space:nowrap;
+  }
   .btn:hover{background:var(--purple-dim);border-color:var(--purple);color:#fff;}
   .btn:disabled{opacity:.4;cursor:not-allowed;}
   .btn.danger{border-color:rgba(248,113,113,.4);color:var(--danger);}
@@ -73,62 +113,83 @@
   .btn.sm{padding:6px 12px;font-size:11px;}
 
   /* ── Grids ── */
-  .grids-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;animation:fadeUp .4s .25s ease both;}
-  @media(max-width:700px){.grids-row{grid-template-columns:1fr;}}
-
-  .grid-section{}
-  .grid-section-title{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.6rem;padding-left:2px;}
-
-  .grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;overflow-x:auto;}
+  .grids-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;animation:fadeUp .4s .25s ease both;}
+  .gsec-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;padding-left:2px;}
+  .grid-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:.9rem;overflow-x:auto;}
   .grid-wrap.editable{border-color:rgba(245,194,0,0.3);}
   .grid-wrap.readonly{opacity:.7;}
+  table{width:100%;border-collapse:collapse;}
+  th{font-family:var(--mono);font-size:10px;color:var(--muted);padding:5px 2px;text-align:center;letter-spacing:1px;border-bottom:1px solid var(--border);}
+  .row-label{font-family:var(--mono);font-size:10px;color:var(--muted);padding:0 5px 0 0;white-space:nowrap;text-align:right;}
+  td.ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);min-width:44px;}
+  td.ed{border:1px solid var(--border);text-align:center;padding:3px;position:relative;min-width:44px;}
+  td.ed input{
+    width:100%;background:transparent;border:none;outline:none;
+    font-family:var(--mono);font-size:13px;font-weight:700;
+    color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;
+  }
+  td.ed input:focus{color:#fff;}
+  td.ed.focused{background:var(--purple-dim);border-color:var(--purple);}
+  td.ed.invalid{background:var(--danger-dim);border-color:rgba(248,113,113,.4);}
+  td.ed.invalid input{color:var(--danger);}
 
-  table{width:100%;border-collapse:collapse;min-width:320px;}
-  th{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:5px 2px;text-align:center;letter-spacing:1px;border-bottom:1px solid var(--border);}
-  .row-label{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:0 6px 0 0;white-space:nowrap;text-align:right;}
-
-  /* Current (readonly) cells */
-  td.cell-ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text);min-width:48px;}
-
-  /* Next (editable) cells */
-  td.cell{border:1px solid var(--border);text-align:center;padding:3px;position:relative;min-width:48px;}
-  td.cell input{width:100%;background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;}
-  td.cell input:focus{color:#fff;}
-  td.cell.focused{background:var(--purple-dim);border-color:var(--purple);}
-  td.cell.invalid{background:var(--danger-dim);border-color:rgba(248,113,113,.4);}
-  td.cell.invalid input{color:var(--danger);}
-
-  /* ── Status & Toast ── */
-  .status-bar{display:flex;align-items:center;gap:12px;margin-top:.75rem;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);animation:fadeUp .4s .3s ease both;}
-  .s-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
-  .info-panel{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.25rem;margin-top:.85rem;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);line-height:1.9;animation:fadeUp .4s .35s ease both;}
-  .info-panel b{color:var(--text);font-weight:400;}
-  .toast{position:fixed;bottom:2rem;right:2rem;background:#1e1a3d;border:1px solid var(--purple);border-radius:12px;padding:12px 20px;font-family:var(--font-mono);font-size:12px;color:#fff;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:300px;}
+  /* ── Status / info ── */
+  .statusbar{display:flex;align-items:center;gap:10px;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--muted);animation:fadeUp .4s .3s ease both;flex-wrap:wrap;}
+  .sdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0;}
+  .infobox{
+    background:var(--card2);border:1px solid var(--border);border-radius:10px;
+    padding:.8rem 1.2rem;margin-top:.8rem;
+    font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.9;
+    animation:fadeUp .4s .35s ease both;
+  }
+  .infobox b{color:var(--text);font-weight:400;}
+  .toast{
+    position:fixed;bottom:2rem;right:1.5rem;background:#1e1a3d;border:1px solid var(--purple);
+    border-radius:12px;padding:12px 20px;font-family:var(--mono);font-size:12px;color:#fff;
+    transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:320px;
+    word-break:break-word;
+  }
   .toast.show{transform:none;opacity:1;}
   .toast.err{border-color:var(--danger);color:var(--danger);}
   .toast.ok{border-color:var(--success);color:var(--success);}
 
   @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+  /* ── Mobile ── */
+  @media(max-width:700px){
+    body{padding:1rem .7rem;}
+    .slot-row,.grids-row{grid-template-columns:1fr;}
+    .toolbar{gap:6px;}
+    .btn{font-size:11px;padding:7px 12px;}
+    td.ro,td.ed input{font-size:11px;}
+    .grid-wrap{padding:.7rem .5rem;}
+    header h1{letter-spacing:2px;}
+  }
+  @media(max-width:420px){
+    td.ro{font-size:10px;}
+    td.ed input{font-size:10px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <p class="admin-badge" style="text-align:center;">Admin Access</p>
     <p class="login-title">Lucky Draw</p>
     <div>
       <p class="field-label">Password</p>
-      <input class="field-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <input class="field-input" type="password" id="pw-input" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-btn" onclick="doLogin()">Unlock Panel</button>
     <p class="login-error" id="login-error">Incorrect password. Try again.</p>
   </div>
 </div>
 
-<!-- Admin Panel -->
+<!-- ADMIN PANEL -->
 <div id="admin-panel">
 <div class="page">
 
@@ -140,62 +201,56 @@
     </div>
   </header>
 
-  <!-- Slot info row -->
+  <!-- Slot info -->
   <div class="slot-row">
     <div class="slot-card">
       <span class="slot-title">Current Live Draw</span>
-      <span class="slot-time gold" id="current-slot-time">—</span>
+      <span class="slot-time gold" id="cur-slot-time">—</span>
       <span class="slot-badge live">● Live now</span>
     </div>
-    <div class="slot-card next-slot">
+    <div class="slot-card next">
       <span class="slot-title">Next Draw Slot</span>
-      <span class="slot-time" id="next-slot-time">—</span>
-      <span class="slot-badge staged" id="next-slot-badge">Awaiting publish</span>
+      <span class="slot-time" id="nxt-slot-time">—</span>
+      <span class="slot-badge staged" id="nxt-badge">Awaiting publish</span>
     </div>
   </div>
 
   <!-- Countdown -->
-  <div class="countdown-bar">
-    <span style="color:var(--text-muted);font-size:11px;letter-spacing:2px;">NEXT DRAW IN</span>
-    <span class="countdown-val" id="adm-countdown">—</span>
-    <span class="countdown-note">Changes published now will go live at the next 15-min mark</span>
+  <div class="cdbar">
+    <span style="font-size:11px;letter-spacing:2px;">NEXT DRAW IN</span>
+    <span class="cdval" id="adm-countdown">—</span>
+    <span id="session-status">Checking session…</span>
+    <button class="btn sm" style="margin-left:auto;" onclick="doLogout()">Logout</button>
   </div>
 
-  <!-- Toolbar for next-draw editing -->
+  <!-- Toolbar -->
   <div class="toolbar">
-    <span class="toolbar-label">Editing: Next Draw Chart</span>
+    <span class="tlabel">Editing: Next Draw Chart</span>
     <div class="spacer"></div>
-    <button class="btn gold" onclick="randomizeNext()">&#8635; Randomize</button>
-    <button class="btn danger" onclick="clearNext()">&#215; Clear</button>
-    <button class="btn success" id="publish-btn" onclick="publishNext()">&#10003; Schedule for Next Draw</button>
-    <button class="btn sm" onclick="doLogout()">Logout</button>
+    <button class="btn gold" onclick="randomizeNext()">↺ Randomize</button>
+    <button class="btn danger" onclick="clearNext()">✕ Clear</button>
+    <button class="btn success" id="pub-btn" onclick="publishNext()">✓ Schedule for Next Draw</button>
   </div>
 
   <!-- Side-by-side grids -->
   <div class="grids-row">
-    <!-- Current (read-only) -->
-    <div class="grid-section">
-      <p class="grid-section-title">Current draw (live — read only)</p>
-      <div class="grid-wrap readonly">
-        <table><thead id="ro-thead"></thead><tbody id="ro-tbody"></tbody></table>
-      </div>
+    <div>
+      <p class="gsec-title">Current draw (live — read only)</p>
+      <div class="grid-wrap readonly"><table><thead id="ro-thead"></thead><tbody id="ro-tbody"></tbody></table></div>
     </div>
-    <!-- Next (editable) -->
-    <div class="grid-section">
-      <p class="grid-section-title">Next draw (edit &amp; schedule)</p>
-      <div class="grid-wrap editable">
-        <table><thead id="ed-thead"></thead><tbody id="ed-tbody"></tbody></table>
-      </div>
+    <div>
+      <p class="gsec-title">Next draw (edit &amp; schedule)</p>
+      <div class="grid-wrap editable"><table><thead id="ed-thead"></thead><tbody id="ed-tbody"></tbody></table></div>
     </div>
   </div>
 
-  <div class="status-bar">
-    <span><span class="s-dot" id="s-dot" style="background:var(--success)"></span><span id="s-label">Loaded</span></span>
+  <div class="statusbar">
+    <span><span class="sdot" id="sdot" style="background:var(--success)"></span><span id="slabel">Loaded</span></span>
     <span style="margin-left:auto;" id="last-pub">—</span>
   </div>
 
-  <div class="info-panel">
-    <b>How it works:</b> The left grid shows what viewers currently see (read-only). Edit the right grid to prepare the <b>next draw</b>. Click <b>Schedule for Next Draw</b> — your changes will go live exactly at the next 15-minute boundary. The viewer chart never updates before that time.
+  <div class="infobox">
+    <b>How it works:</b> Left grid = what viewers see now (read-only). Right grid = next draw slot. Click <b>Schedule</b> to stage your changes. At each 15-min boundary (9:30 AM – 9:30 PM) the draw auto-advances. If no manual schedule is set, a <b>random chart is generated automatically</b>.
   </div>
 </div>
 </div>
@@ -203,259 +258,317 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const API_KEY  = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
-  const BIN_ID   = '69e4a9f9aaba882197157ed4';
-  const BIN_URL  = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-  const ADMIN_PW = 'Ganesh1234'; // ← Change this password
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const API_KEY  = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
+const BIN_ID   = '69e4a9f9aaba882197157ed4';
+const BIN_URL  = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const ADMIN_PW = 'Ganesh1234';
 
-  let currentNumbers    = [];
-  let nextNumbers       = [];
-  let isDirty           = false;
-  let lastKnownDrawTime = null;
+const DAY_START = 9*60+30;   // 570  = 9:30 AM
+const DAY_END   = 21*60+30;  // 1290 = 9:30 PM
+const SLOT_MIN  = 15;
 
-  const pad  = n => String(n).padStart(2,'0');
-  const pad4 = n => String(n).padStart(4,'0');
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const pad  = n => String(n).padStart(2,'0');
+const pad4 = n => String(n).padStart(4,'0');
 
-  function formatTime(d){
-    let h=d.getHours(), m=d.getMinutes();
-    const ap=h>=12?'PM':'AM'; h=h%12||12;
-    return `${pad(h)}:${pad(m)} ${ap}`;
+function formatTime(d){
+  let h=d.getHours(), m=d.getMinutes();
+  const ap=h>=12?'PM':'AM'; h=h%12||12;
+  return `${pad(h)}:${pad(m)} ${ap}`;
+}
+
+function minOfDay(d){ return d.getHours()*60+d.getMinutes(); }
+
+function isInSession(d){
+  const m=minOfDay(d);
+  return m>=DAY_START && m<DAY_END;
+}
+
+function currentSlotKey(d){
+  const m=minOfDay(d);
+  if(m<DAY_START||m>=DAY_END) return null;
+  const elapsed=m-DAY_START;
+  const slotIdx=Math.floor(elapsed/SLOT_MIN);
+  const slotMins=slotIdx*SLOT_MIN+DAY_START;
+  const sH=Math.floor(slotMins/60), sM=slotMins%60;
+  const y=d.getFullYear(), mo=pad(d.getMonth()+1), dd=pad(d.getDate());
+  return `${y}-${mo}-${dd}-${pad(sH)}${pad(sM)}`;
+}
+
+function currentSlotTime(d){
+  // Returns a Date representing the start of the current slot
+  const m=minOfDay(d);
+  if(m<DAY_START||m>=DAY_END) return null;
+  const elapsed=m-DAY_START;
+  const slotIdx=Math.floor(elapsed/SLOT_MIN);
+  const slotMins=slotIdx*SLOT_MIN+DAY_START;
+  const nd=new Date(d);
+  nd.setHours(Math.floor(slotMins/60), slotMins%60, 0, 0);
+  return nd;
+}
+
+function getNextSlot(d){
+  const m=minOfDay(d);
+  if(m<DAY_START){
+    const nd=new Date(d); nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
   }
+  if(m>=DAY_END){
+    const nd=new Date(d); nd.setDate(nd.getDate()+1);
+    nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
+  }
+  const elapsed=m-DAY_START;
+  const nextMins=Math.ceil((elapsed+1)/SLOT_MIN)*SLOT_MIN+DAY_START;
+  if(nextMins>=DAY_END){
+    const nd=new Date(d); nd.setDate(nd.getDate()+1);
+    nd.setHours(Math.floor(DAY_START/60),DAY_START%60,0,0); return nd;
+  }
+  const nd=new Date(d);
+  nd.setHours(Math.floor(nextMins/60),nextMins%60,0,0);
+  return nd;
+}
 
-  function getNextSlot(){
-    const now=new Date(), n=new Date(now);
-    const rem=15-(now.getMinutes()%15);
-    n.setMinutes(now.getMinutes()+rem,0,0);
-    return n;
-  }
+function randInRange(p){ return pad4(Math.floor(Math.random()*99)+p*100+Math.floor(Math.random()*1)); }
+function generateGrid(){
+  return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>pad4(Math.floor(Math.random()*100)+(r*10+c)*100)));
+}
 
-  function randInRange(p){
-    const lo=p*100, hi=lo+99;
-    return pad4(Math.floor(Math.random()*(hi-lo+1))+lo);
-  }
-  function generateGrid(){
-    return Array.from({length:10},(_,r)=>Array.from({length:10},(_,c)=>randInRange(r*10+c)));
-  }
+// ─── BIN I/O ─────────────────────────────────────────────────────────────────
+async function fetchBin(){
+  try{
+    const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
+    if(!r.ok) throw 0;
+    return await r.json();
+  }catch{ return null; }
+}
 
-  /* ── Auth ── */
-  function doLogin(){
-    if(document.getElementById('pw-input').value===ADMIN_PW){
-      document.getElementById('login-screen').style.display='none';
-      document.getElementById('admin-panel').style.display='block';
-      initAdmin();
-    } else {
-      const e=document.getElementById('login-error');
-      e.style.display='block';
-      document.getElementById('pw-input').value='';
-      setTimeout(()=>e.style.display='none',3000);
-    }
+async function pushBin(payload){
+  const btn=document.getElementById('pub-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  try{
+    const r=await fetch(BIN_URL,{method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+      body:JSON.stringify(payload)
+    });
+    return r.ok;
+  }catch{
+    showToast('Publish failed. Check API key / network.',true);
+    return false;
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='✓ Schedule for Next Draw'; }
   }
-  function doLogout(){
-    document.getElementById('admin-panel').style.display='none';
-    document.getElementById('login-screen').style.display='flex';
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function doLogin(){
+  if(document.getElementById('pw-input').value===ADMIN_PW){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-panel').style.display='block';
+    initAdmin();
+  } else {
+    const e=document.getElementById('login-error');
+    e.style.display='block';
     document.getElementById('pw-input').value='';
+    setTimeout(()=>e.style.display='none',3000);
   }
+}
+function doLogout(){
+  document.getElementById('admin-panel').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('pw-input').value='';
+}
 
-  /* ── JSONBin ── */
-  async function fetchFromBin(){
-    try{
-      const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
-      if(!r.ok) throw new Error();
-      return await r.json();
-    }catch{ return null; }
-  }
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let curNums       = [];
+let nextNums      = [];
+let lastSlotKey   = null;
+let isDirty       = false;
+let tickerRunning = false;
 
-  async function pushToBin(payload){
-    const btn=document.getElementById('publish-btn');
-    btn.disabled=true; btn.textContent='Scheduling…';
-    try{
-      const r=await fetch(BIN_URL,{method:'PUT',
-        headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
-        body:JSON.stringify(payload)});
-      if(!r.ok) throw new Error('API error');
-      return true;
-    }catch{
-      showToast('Publish failed. Check API key / network.',true);
-      return false;
-    } finally{
-      btn.disabled=false;
-      btn.textContent='✓ Schedule for Next Draw';
+// ─── TABLE BUILDERS ───────────────────────────────────────────────────────────
+function buildROTable(nums){
+  const thead=document.getElementById('ro-thead');
+  const tbody=document.getElementById('ro-tbody');
+  thead.innerHTML=''; tbody.innerHTML='';
+  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
+  for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
+  thead.appendChild(hr);
+  for(let r=0;r<10;r++){
+    const tr=document.createElement('tr');
+    const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
+    for(let c=0;c<10;c++){
+      const td=document.createElement('td');td.className='ro';
+      td.textContent=(nums[r]||[])[c]||'----';
+      tr.appendChild(td);
     }
+    tbody.appendChild(tr);
   }
+}
 
-  /* ── Read-only (current) grid ── */
-  function buildReadonlyTable(nums){
-    const thead=document.getElementById('ro-thead');
-    const tbody=document.getElementById('ro-tbody');
-    thead.innerHTML=''; tbody.innerHTML='';
-    const hr=document.createElement('tr');
-    hr.appendChild(document.createElement('th'));
-    for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
-    thead.appendChild(hr);
-    for(let r=0;r<10;r++){
-      const tr=document.createElement('tr');
-      const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
-      for(let c=0;c<10;c++){
-        const td=document.createElement('td');td.className='cell-ro';
-        td.textContent=(nums[r]||[])[c]||'----';
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
+function buildEDTable(nums){
+  const thead=document.getElementById('ed-thead');
+  const tbody=document.getElementById('ed-tbody');
+  thead.innerHTML=''; tbody.innerHTML='';
+  const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
+  for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
+  thead.appendChild(hr);
+  for(let r=0;r<10;r++){
+    const tr=document.createElement('tr');
+    const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
+    for(let c=0;c<10;c++){
+      const td=document.createElement('td');td.className='ed';
+      td.dataset.r=r; td.dataset.c=c;
+      const inp=document.createElement('input');
+      inp.type='text'; inp.maxLength=4;
+      inp.value=(nums[r]||[])[c]||'';
+      inp.addEventListener('focus',()=>td.classList.add('focused'));
+      inp.addEventListener('blur',()=>{td.classList.remove('focused');validateCell(inp,td,r,c);});
+      inp.addEventListener('input',()=>{markDirty();validateCell(inp,td,r,c);});
+      inp.addEventListener('keydown',e=>navCell(e,r,c));
+      td.appendChild(inp);
+      tr.appendChild(td);
     }
+    tbody.appendChild(tr);
   }
+}
 
-  /* ── Editable (next) grid ── */
-  function buildEditableTable(nums){
-    const thead=document.getElementById('ed-thead');
-    const tbody=document.getElementById('ed-tbody');
-    thead.innerHTML=''; tbody.innerHTML='';
-    const hr=document.createElement('tr');
-    hr.appendChild(document.createElement('th'));
-    for(let c=0;c<10;c++){const th=document.createElement('th');th.textContent=String.fromCharCode(65+c);hr.appendChild(th);}
-    thead.appendChild(hr);
-    for(let r=0;r<10;r++){
-      const tr=document.createElement('tr');
-      const rl=document.createElement('td');rl.className='row-label';rl.textContent=r+1;tr.appendChild(rl);
-      for(let c=0;c<10;c++){
-        const td=document.createElement('td');td.className='cell';
-        td.dataset.r=r; td.dataset.c=c;
-        const inp=document.createElement('input');
-        inp.type='text'; inp.maxLength=4;
-        inp.value=(nums[r]||[])[c]||'';
-        inp.addEventListener('focus',()=>td.classList.add('focused'));
-        inp.addEventListener('blur',()=>{td.classList.remove('focused');validateCell(inp,td,r,c);});
-        inp.addEventListener('input',()=>{markDirty();validateCell(inp,td,r,c);});
-        inp.addEventListener('keydown',e=>navCell(e,r,c));
-        td.appendChild(inp);
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
+function validateCell(inp,td,r,c){
+  const prefix=pad(r*10+c), val=inp.value.trim();
+  const valid=val.length===4&&val.startsWith(prefix)&&/^\d{4}$/.test(val);
+  td.classList.toggle('invalid',!!val&&!valid);
+  if(valid) nextNums[r][c]=val;
+}
+
+function navCell(e,r,c){
+  let nr=r,nc=c;
+  if(e.key==='ArrowRight') nc=Math.min(9,c+1);
+  else if(e.key==='ArrowLeft') nc=Math.max(0,c-1);
+  else if(e.key==='ArrowDown'||e.key==='Enter') nr=Math.min(9,r+1);
+  else if(e.key==='ArrowUp') nr=Math.max(0,r-1);
+  else return;
+  e.preventDefault();
+  document.querySelectorAll('#ed-tbody td.ed').forEach(td=>{
+    if(+td.dataset.r===nr&&+td.dataset.c===nc) td.querySelector('input').focus();
+  });
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function randomizeNext(){
+  nextNums=generateGrid();
+  buildEDTable(nextNums);
+  markDirty();
+  showToast('Randomized. Click Schedule to confirm.');
+}
+
+function clearNext(){
+  if(!confirm('Clear all values in the next draw chart?')) return;
+  nextNums=Array.from({length:10},()=>Array(10).fill(''));
+  buildEDTable(nextNums);
+  markDirty();
+}
+
+async function publishNext(){
+  if(document.querySelectorAll('#ed-tbody td.ed.invalid').length){
+    showToast('Fix invalid cells first.',true); return;
   }
+  // Read inputs → nextNums
+  document.querySelectorAll('#ed-tbody td.ed').forEach(td=>{
+    const r=+td.dataset.r, c=+td.dataset.c;
+    const val=td.querySelector('input').value.trim();
+    if(/^\d{4}$/.test(val)) nextNums[r][c]=val;
+  });
 
-  function validateCell(inp,td,r,c){
-    const prefix=pad(r*10+c), val=inp.value.trim();
-    const valid=val.length===4&&val.startsWith(prefix)&&/^\d{4}$/.test(val);
-    td.classList.toggle('invalid',!!val&&!valid);
-    if(valid) nextNumbers[r][c]=val;
+  const now=new Date();
+  const nextSlot=getNextSlot(now);
+
+  // Preserve existing currentDrawTime + slotKey so index.html isn't confused
+  const existing=await fetchBin();
+  const payload={
+    current: curNums,
+    next: nextNums,
+    currentDrawTime: existing?.currentDrawTime || now.toISOString(),
+    slotKey: existing?.slotKey || lastSlotKey || currentSlotKey(now),
+    updatedAt: now.toISOString(),
+    nextScheduledFor: nextSlot.toISOString()
+  };
+
+  const ok=await pushBin(payload);
+  if(ok){
+    isDirty=false; setStatus(false);
+    document.getElementById('last-pub').textContent='Scheduled at '+now.toLocaleTimeString();
+    document.getElementById('nxt-badge').textContent='✓ Scheduled';
+    showToast(`Staged! Goes live at ${formatTime(nextSlot)}.`,false,true);
   }
+}
 
-  function navCell(e,r,c){
-    let nr=r,nc=c;
-    if(e.key==='ArrowRight') nc=Math.min(9,c+1);
-    else if(e.key==='ArrowLeft') nc=Math.max(0,c-1);
-    else if(e.key==='ArrowDown'||e.key==='Enter') nr=Math.min(9,r+1);
-    else if(e.key==='ArrowUp') nr=Math.max(0,r-1);
-    else return;
-    e.preventDefault();
-    document.querySelectorAll('#ed-tbody td.cell').forEach(td=>{
-      if(+td.dataset.r===nr&&+td.dataset.c===nc) td.querySelector('input').focus();
-    });
-  }
+// ─── STATUS / TOAST ───────────────────────────────────────────────────────────
+function markDirty(){ isDirty=true; setStatus(true); }
+function setStatus(dirty){
+  const dot=document.getElementById('sdot'), lbl=document.getElementById('slabel');
+  if(dirty){ dot.style.background='var(--gold)'; lbl.textContent='Unsaved — click Schedule'; }
+  else      { dot.style.background='var(--success)'; lbl.textContent='Staged for next draw'; }
+}
 
-  /* ── Actions ── */
-  function randomizeNext(){
-    nextNumbers=generateGrid();
-    buildEditableTable(nextNumbers);
-    markDirty();
-    showToast('Next draw randomized. Click Schedule to confirm.');
-  }
+function showToast(msg,isErr,isOk){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(isErr?' err':isOk?' ok':'')+' show';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.className='toast'+(isErr?' err':isOk?' ok':''),4000);
+}
 
-  function clearNext(){
-    if(!confirm('Clear all values in the next draw chart?')) return;
-    nextNumbers=Array.from({length:10},()=>Array(10).fill(''));
-    buildEditableTable(nextNumbers);
-    markDirty();
-  }
-
-  async function publishNext(){
-    if(document.querySelectorAll('#ed-tbody td.cell.invalid').length){
-      showToast('Fix invalid cells before scheduling.',true); return;
-    }
-    // Read current values from inputs into nextNumbers
-    document.querySelectorAll('#ed-tbody td.cell').forEach(td=>{
-      const r=+td.dataset.r, c=+td.dataset.c;
-      const val=td.querySelector('input').value.trim();
-      if(/^\d{4}$/.test(val)) nextNumbers[r][c]=val;
-    });
-
+// ─── TICKER ───────────────────────────────────────────────────────────────────
+function startTicker(){
+  if(tickerRunning) return;
+  tickerRunning=true;
+  setInterval(()=>{
     const now=new Date();
-    const nextSlot=getNextSlot();
-    // IMPORTANT: preserve existing currentDrawTime so index.html does NOT
-    // think a new draw has gone live mid-slot. Only next[] is being staged.
-    const payload={
-      current: currentNumbers,
-      next: nextNumbers,
-      currentDrawTime: lastKnownDrawTime || now.toISOString(),
-      updatedAt: now.toISOString(),
-      nextScheduledFor: nextSlot.toISOString()
-    };
+    const inSess=isInSession(now);
+    const next=getNextSlot(now);
+    const diff=Math.max(0,Math.floor((next-now)/1000));
+    const hh=Math.floor(diff/3600), mm=Math.floor((diff%3600)/60), ss=diff%60;
+    document.getElementById('adm-countdown').textContent=`${hh}h ${pad(mm)}m ${pad(ss)}s`;
+    document.getElementById('nxt-slot-time').textContent=formatTime(next);
 
-    const ok=await pushToBin(payload);
-    if(ok){
-      isDirty=false; setStatus(false);
-      const pub=now.toLocaleTimeString();
-      document.getElementById('last-pub').textContent=`Scheduled at ${pub}`;
-      document.getElementById('next-slot-badge').textContent='✓ Scheduled';
-      showToast(`Scheduled! Goes live at ${formatTime(nextSlot)}.`,false,true);
+    const slotT=currentSlotTime(now);
+    if(slotT) document.getElementById('cur-slot-time').textContent=formatTime(slotT);
+
+    // Session label
+    const ss_el=document.getElementById('session-status');
+    if(inSess) ss_el.textContent='🟢 Session active (9:30 AM – 9:30 PM)';
+    else ss_el.textContent='🔴 Session closed — next opens 9:30 AM';
+  },1000);
+}
+
+// ─── INIT ADMIN ───────────────────────────────────────────────────────────────
+async function initAdmin(){
+  const now=new Date();
+  const data=await fetchBin();
+
+  if(data?.current?.length){
+    curNums      = data.current;
+    nextNums     = data.next?.length ? data.next : generateGrid();
+    lastSlotKey  = data.slotKey || currentSlotKey(now);
+    const dt     = data.currentDrawTime ? new Date(data.currentDrawTime) : now;
+    document.getElementById('cur-slot-time').textContent=formatTime(dt);
+    if(data.updatedAt) document.getElementById('last-pub').textContent='Last: '+new Date(data.updatedAt).toLocaleTimeString();
+    if(data.nextScheduledFor){
+      document.getElementById('nxt-badge').textContent='✓ Scheduled for '+formatTime(new Date(data.nextScheduledFor));
     }
+  } else {
+    curNums  = generateGrid();
+    nextNums = generateGrid();
+    lastSlotKey = currentSlotKey(now);
+    document.getElementById('cur-slot-time').textContent=formatTime(now);
   }
 
-  /* ── Status ── */
-  function markDirty(){isDirty=true;setStatus(true);}
-  function setStatus(dirty){
-    const dot=document.getElementById('s-dot'),lbl=document.getElementById('s-label');
-    if(dirty){dot.style.background='var(--gold)';lbl.textContent='Unsaved — click Schedule';}
-    else{dot.style.background='var(--success)';lbl.textContent='Scheduled for next draw';}
-  }
+  buildROTable(curNums);
+  buildEDTable(nextNums);
+  setStatus(false);
+  startTicker();
+}
 
-  function showToast(msg,isErr,isOk){
-    const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.className='toast'+(isErr?' err':isOk?' ok':'')+' show';
-    clearTimeout(t._t);
-    t._t=setTimeout(()=>t.className='toast'+(isErr?' err':isOk?' ok':''),3800);
-  }
-
-  /* ── Countdown ticker ── */
-  function startTicker(){
-    setInterval(()=>{
-      const now=new Date();
-      const next=getNextSlot();
-      const diff=Math.max(0,Math.floor((next-now)/1000));
-      const hh=Math.floor(diff/3600),mm=Math.floor((diff%3600)/60),ss=diff%60;
-      document.getElementById('adm-countdown').textContent=`${hh}h ${pad(mm)}m ${pad(ss)}s`;
-      document.getElementById('next-slot-time').textContent=formatTime(next);
-    },1000);
-  }
-
-  /* ── Init ── */
-  async function initAdmin(){
-    const data=await fetchFromBin();
-
-    if(data&&data.current&&data.current.length){
-      currentNumbers=data.current;
-      nextNumbers=data.next&&data.next.length?data.next:generateGrid();
-      const dt=data.currentDrawTime?new Date(data.currentDrawTime):new Date();
-      lastKnownDrawTime=data.currentDrawTime||null;
-      document.getElementById('current-slot-time').textContent=formatTime(dt);
-      if(data.updatedAt) document.getElementById('last-pub').textContent='Last scheduled: '+new Date(data.updatedAt).toLocaleTimeString();
-      if(data.nextScheduledFor){
-        document.getElementById('next-slot-badge').textContent='✓ Scheduled for '+formatTime(new Date(data.nextScheduledFor));
-      }
-    } else {
-      currentNumbers=generateGrid();
-      nextNumbers=generateGrid();
-      document.getElementById('current-slot-time').textContent=formatTime(new Date());
-    }
-
-    buildReadonlyTable(currentNumbers);
-    buildEditableTable(nextNumbers);
-    setStatus(false);
-    startTicker();
-  }
-
-  window.addEventListener('beforeunload',e=>{if(isDirty){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',e=>{ if(isDirty){e.preventDefault();e.returnValue='';} });
 </script>
 </body>
 </html>
