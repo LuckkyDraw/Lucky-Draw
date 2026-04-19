@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lucky Draw — Admin Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0d0b1e;--card:#1a1640;--card2:#13102b;
@@ -14,7 +14,7 @@
     --text:#e8e4ff;--text-muted:#7a749a;
     --danger:#f87171;--danger-dim:rgba(248,113,113,0.1);
     --success:#4ade80;--success-dim:rgba(74,222,128,0.1);
-    --font-display:'Rajdhani',sans-serif;--font-mono:'Share Tech Mono',monospace;
+    --font-display:'Rajdhani',sans-serif;--font-mono:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;overflow-x:hidden;}
@@ -88,11 +88,11 @@
   .row-label{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:0 6px 0 0;white-space:nowrap;text-align:right;}
 
   /* Current (readonly) cells */
-  td.cell-ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--font-mono);font-size:12px;color:var(--text);min-width:48px;}
+  td.cell-ro{border:1px solid var(--border);text-align:center;padding:7px 2px;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text);min-width:48px;}
 
   /* Next (editable) cells */
   td.cell{border:1px solid var(--border);text-align:center;padding:3px;position:relative;min-width:48px;}
-  td.cell input{width:100%;background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:12px;color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;}
+  td.cell input{width:100%;background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text);text-align:center;padding:5px 1px;cursor:pointer;}
   td.cell input:focus{color:#fff;}
   td.cell.focused{background:var(--purple-dim);border-color:var(--purple);}
   td.cell.invalid{background:var(--danger-dim);border-color:rgba(248,113,113,.4);}
@@ -208,9 +208,10 @@
   const BIN_URL  = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
   const ADMIN_PW = 'Ganesh1234'; // ← Change this password
 
-  let currentNumbers = [];
-  let nextNumbers    = [];
-  let isDirty        = false;
+  let currentNumbers    = [];
+  let nextNumbers       = [];
+  let isDirty           = false;
+  let lastKnownDrawTime = null;
 
   const pad  = n => String(n).padStart(2,'0');
   const pad4 = n => String(n).padStart(4,'0');
@@ -258,7 +259,7 @@
   /* ── JSONBin ── */
   async function fetchFromBin(){
     try{
-      const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
+      const r=await fetch(`${BIN_URL}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'},cache:'no-store'});
       if(!r.ok) throw new Error();
       return await r.json();
     }catch{ return null; }
@@ -380,10 +381,12 @@
 
     const now=new Date();
     const nextSlot=getNextSlot();
+    // IMPORTANT: preserve existing currentDrawTime so index.html does NOT
+    // think a new draw has gone live mid-slot. Only next[] is being staged.
     const payload={
       current: currentNumbers,
       next: nextNumbers,
-      currentDrawTime: now.toISOString(),
+      currentDrawTime: lastKnownDrawTime || now.toISOString(),
       updatedAt: now.toISOString(),
       nextScheduledFor: nextSlot.toISOString()
     };
@@ -434,6 +437,7 @@
       currentNumbers=data.current;
       nextNumbers=data.next&&data.next.length?data.next:generateGrid();
       const dt=data.currentDrawTime?new Date(data.currentDrawTime):new Date();
+      lastKnownDrawTime=data.currentDrawTime||null;
       document.getElementById('current-slot-time').textContent=formatTime(dt);
       if(data.updatedAt) document.getElementById('last-pub').textContent='Last scheduled: '+new Date(data.updatedAt).toLocaleTimeString();
       if(data.nextScheduledFor){
