@@ -35,7 +35,7 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-tr
 #b-offline{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#f87171;}
 #b-closed{background:rgba(124,109,250,.08);border:1px solid rgba(124,109,250,.2);color:var(--muted);}
 
-/* Draw Panel */
+/* Draw Status Panel */
 .dp{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);
   border:1px solid var(--border);border-radius:16px;padding:1.2rem 0;
   margin-bottom:1.4rem;animation:fU .5s .1s ease both;}
@@ -45,7 +45,7 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700;letter-spacing:4px;text-tr
 .dv{font-size:1.4rem;font-weight:700;color:#fff;font-family:var(--M);letter-spacing:1px;line-height:1.2;}
 .dv.gold{color:var(--gold);}
 
-/* Grid Wrapper */
+/* Main Grid Box */
 .gw{background:var(--card);border:1px solid var(--border);border-radius:16px;
   padding:1.2rem;overflow-x:auto;position:relative;animation:fU .5s .2s ease both;}
 .ov{position:absolute;inset:0;background:rgba(13,11,30,.88);border-radius:16px;z-index:10;
@@ -63,7 +63,7 @@ td.c{border:1px solid var(--border);text-align:center;padding:9px 2px;
 td.c:hover{background:var(--hover);transform:scale(1.05);z-index:2;border-color:var(--purple);}
 td.c.fl{animation:flash .9s ease forwards;}
 
-/* History List Styles */
+/* History List Items */
 .h-item {
   background: var(--card2);
   border: 1px solid var(--border);
@@ -73,6 +73,7 @@ td.c.fl{animation:flash .9s ease forwards;}
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
+  margin-bottom: 8px;
 }
 .h-item:hover { border-color: var(--purple); background: var(--hover); }
 .h-time { font-family: var(--M); font-size: 13px; font-weight: 700; color: var(--gold); }
@@ -100,7 +101,6 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
   th,.rl{font-size:9px;}
   .gw{padding:.75rem .4rem;}
 }
-@media(max-width:380px){td.c{font-size:9.5px;padding:5px 0;}.dv{font-size:1rem;}}
 </style>
 </head>
 <body>
@@ -124,16 +124,23 @@ footer{text-align:center;margin-top:1.4rem;font-family:var(--M);font-size:11px;
   </div>
 
   <div class="gw" style="margin-top: 1.4rem; animation-delay: 0.3s;">
-    <div class="dl" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-      <span>Recent History (Last 7 Days)</span>
-      <button onclick="loadHistory()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Refresh</button>
+    <div class="dl" style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Draw History</span>
+        <button onclick="resetHistoryFilter()" style="background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: var(--M); font-size: 9px;">↻ Reset Filter</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 10px; color: var(--muted);">SELECT DATE:</span>
+        <input type="date" id="hist-date-filter" onchange="loadHistory()" 
+               style="background: var(--card2); border: 1px solid var(--border); color: #fff; font-family: var(--M); font-size: 11px; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;">
+      </div>
     </div>
-    <div id="hist-container" style="display: flex; flex-direction: column; gap: 8px;">
+    <div id="hist-container">
       <div class="ov-txt" style="text-align: center; padding: 1rem;">Loading history...</div>
     </div>
   </div>
 
-  <footer>&copy; <span id="yr"></span> Lucky Draw — All results generated for entertainment.</footer>
+  <footer>&copy; <span id="yr"></span> Lucky Draw — Entertainment only.</footer>
 </div>
 <script>
 /* ── CONFIG ── */
@@ -185,7 +192,6 @@ async function putBin(p){
   try{const r=await fetch(LIVE_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LIVE_KEY},body:JSON.stringify(p)});return r.ok;}catch{return false;}
 }
 
-/* ── UI HELPERS ── */
 function setOff(v){document.getElementById('b-offline').style.display=v?'block':'none';}
 function setClosed(v){document.getElementById('b-closed').style.display=v?'block':'none';}
 
@@ -210,17 +216,28 @@ function buildTable(nums,flash){
   document.getElementById('ov').style.display='none';
 }
 
-/* ── HISTORY LOGIC ── */
+/* ── HISTORY & FILTER LOGIC ── */
 async function loadHistory() {
   const container = document.getElementById('hist-container');
+  const dateFilter = document.getElementById('hist-date-filter').value;
   const data = await getBin();
   if (!data || !data.history || data.history.length === 0) {
     container.innerHTML = '<div class="ov-txt" style="text-align:center; padding:1rem;">No history found.</div>';
     return;
   }
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const history = data.history.filter(h => new Date(h.drawTime) >= sevenDaysAgo).reverse();
+  let history = data.history;
+  if(dateFilter) {
+    history = history.filter(h => h.drawTime.startsWith(dateFilter));
+  } else {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    history = history.filter(h => new Date(h.drawTime) >= sevenDaysAgo);
+  }
+  history.reverse();
+  if(history.length === 0) {
+    container.innerHTML = `<div class="ov-txt" style="text-align:center; padding:1rem;">No results for ${dateFilter || 'last 7 days'}.</div>`;
+    return;
+  }
   container.innerHTML = '';
   history.forEach(item => {
     const dt = new Date(item.drawTime);
@@ -228,11 +245,12 @@ async function loadHistory() {
     const div = document.createElement('div');
     div.className = 'h-item';
     div.innerHTML = `
-      <div><div class="h-time">${fmt(dt)}</div><div class="h-date">${dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</div></div>
+      <div><div class="h-time">${fmt(dt)}</div><div class="h-date">${dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
       <div class="h-badge ${isManual?'h-manual':''}">${isManual?'Official':'Auto'}</div>`;
     container.appendChild(div);
   });
 }
+function resetHistoryFilter(){ document.getElementById('hist-date-filter').value=''; loadHistory(); }
 
 /* ── STATE & SYNC ── */
 let curNums=[],nxtNums=[],curKey=null,nxtSlotDt=null,swapBusy=false,lastPoll=0;
