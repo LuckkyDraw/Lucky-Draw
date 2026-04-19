@@ -543,7 +543,7 @@ async function doSwap(now, remote){
   const wasManual=!!(remote?.nextScheduledFor);
 
   curNums=incoming; nxtNums=genGrid(); lastSlotKey=key; nxtSlotDt=nextSlot(now);
-  isDirty=false;setStatus(false);
+  isDirty=false; setStatus(false);
 
   // Archive this draw to history
   const histEntry={
@@ -554,9 +554,12 @@ async function doSwap(now, remote){
   };
   const existing=await getBin();
   const hist=existing?.history||[];
-  // keep last 200 entries
-  hist.push(histEntry);
-  if(hist.length>200)hist.splice(0,hist.length-200);
+  // Deduplicate: only add if this slotKey isn't already the last entry
+  const lastEntry=hist[hist.length-1];
+  if(!lastEntry||lastEntry.slotKey!==key){
+    hist.push(histEntry);
+    if(hist.length>200)hist.splice(0,hist.length-200);
+  }
 
   // Update bin: new current + fresh next pre-seeded + history appended
   await putBin({
@@ -623,25 +626,26 @@ function startTicker(){
       lastPoll=Date.now();
       const data=await getBin();
       if(data){
-        // If remote slotKey is newer (another tab advanced it), just re-render
+        // Remote slot advanced (another tab or viewer did the swap)
         if(data.slotKey&&data.slotKey!==lastSlotKey&&!swapBusy){
           curNums=data.current||curNums;
           nxtNums=data.next?.length?data.next:genGrid();
           lastSlotKey=data.slotKey;
+          isDirty=false; // slot changed — edits are now stale, safe to refresh
           buildRO(curNums);
-          // Only rebuild edit table if not dirty (don't overwrite admin's edits)
-          if(!isDirty)buildED(nxtNums);
+          buildED(nxtNums); // always refresh next-draw grid on slot advance
           const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
           document.getElementById('cur-slot-t').textContent=fmt(dt);
           document.getElementById('nxt-badge').textContent='Awaiting publish';
         } else {
-          // Same slot: sync current display and staged next (if not editing)
+          // Same slot: always update current read-only grid
           if(data.current?.length){
             curNums=data.current;
             buildRO(curNums);
             const dt=data.currentDrawTime?new Date(data.currentDrawTime):now;
             document.getElementById('cur-slot-t').textContent=fmt(dt);
           }
+          // Only overwrite next-draw grid if admin hasn't started editing
           if(data.next?.length&&!isDirty){
             nxtNums=data.next; buildED(nxtNums);
           }
