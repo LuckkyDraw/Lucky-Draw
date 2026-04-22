@@ -300,6 +300,7 @@ td.ed.invalid input{color:var(--danger);}
       <button class="btn gold" onclick="applyFilter()">Apply Filter</button>
       <button class="btn sm" onclick="setLast7()">Last 7 Days</button>
       <button class="btn sm" onclick="setToday()">Today</button>
+      <button class="btn ok" onclick="exportPDF()">⬇ Export PDF</button>
     </div>
 
     <div class="hist-summary">
@@ -333,6 +334,9 @@ const LIVE_URL  = `https://api.jsonbin.io/v3/b/${LIVE_BIN}`;
 const ADMIN_PW  = 'Ganesh1234';
 
 const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15;
+// Session is active from 9:30 AM up to and INCLUDING the 9:30 PM slot.
+// The 9:30 PM slot runs until 9:45 PM, so session ends at 21*60+45.
+const SESS_END  = 21*60+45;
 
 /* ════════════════════════════════════════════════════════════════
    TIME HELPERS
@@ -343,11 +347,11 @@ function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%
 function fmtDate(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
 function fmtFull(d){return `${fmtDate(d)}  ${fmt(d)}`;}
 function mod(d){return d.getHours()*60+d.getMinutes();}
-function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
+function inSess(d){const m=mod(d);return m>=DAY_START&&m<SESS_END;}
 
 function slotKey(d){
   const m=mod(d);
-  if(m<DAY_START||m>=DAY_END)return null;
+  if(m<DAY_START||m>=SESS_END)return null;
   const idx=Math.floor((m-DAY_START)/SLOT);
   const sm=idx*SLOT+DAY_START;
   const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
@@ -356,7 +360,7 @@ function slotKey(d){
 
 function slotStartTime(d){
   const m=mod(d);
-  if(m<DAY_START||m>=DAY_END)return null;
+  if(m<DAY_START||m>=SESS_END)return null;
   const idx=Math.floor((m-DAY_START)/SLOT);
   const sm=idx*SLOT+DAY_START;
   const n=new Date(d);n.setHours(Math.floor(sm/60),sm%60,0,0);return n;
@@ -366,12 +370,51 @@ function nextSlot(d){
   const m=mod(d);
   let nm;
   if(m<DAY_START){nm=DAY_START;}
-  else if(m>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+  else if(m>=SESS_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
   else{
     nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START;
-    if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+    if(nm>=SESS_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
   }
   const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
+}
+
+/* ── allSlotsForDay: returns all slot start times for a given date ── */
+function allSlotsForDay(date){
+  const slots=[];
+  let m=DAY_START;
+  while(m<=DAY_END){ // inclusive of 21:30
+    const d=new Date(date);d.setHours(Math.floor(m/60),m%60,0,0);
+    slots.push(d);m+=SLOT;
+  }
+  return slots;
+}
+
+/* ── missedSlots: slots that should have fired since lastSlotKey ──
+   Generates history entries for all missed slots automatically.       */
+function missedSlots(lastKey, now){
+  if(!lastKey)return[];
+  // Parse last key: "YYYY-MM-DD-HHmm"
+  const parts=lastKey.split('-');
+  const y=+parts[0],mo=+parts[1]-1,dd=+parts[2];
+  const hh=Math.floor(+parts[3]/100),mm=+parts[3]%100;
+  const lastSlotStart=new Date(y,mo,dd,hh,mm,0,0);
+  const missed=[];
+  // Walk forward from lastSlotStart+SLOT to now, collecting all fired slots
+  let t=new Date(lastSlotStart.getTime()+SLOT*60000);
+  while(t<=now){
+    const m2=t.getHours()*60+t.getMinutes();
+    if(m2>=DAY_START&&m2<=DAY_END){ // include 9:30 PM
+      const sk=slotKey(t)||(()=>{
+        // For exactly DAY_END we build key manually
+        const y2=t.getFullYear(),mo2=pad(t.getMonth()+1),dd2=pad(t.getDate());
+        return `${y2}-${mo2}-${dd2}-${pad(Math.floor(m2/60))}${pad(m2%60)}`;
+      })();
+      if(sk&&sk!==lastKey)missed.push({time:new Date(t),key:sk});
+    }
+    t=new Date(t.getTime()+SLOT*60000);
+    if(missed.length>100)break; // safety cap
+  }
+  return missed;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -534,18 +577,54 @@ async function publishNext(){
 }
 
 /* ════════════════════════════════════════════════════════════════
+   CATCHUP: run on load — fills history for all slots missed while
+   no browser was open. Writes once to JSONBin with full history.
+════════════════════════════════════════════════════════════════ */
+async function catchupMissedSlots(binData){
+  const now=new Date();
+  const lastKey=binData?.slotKey||null;
+  if(!lastKey)return binData; // nothing to catch up
+  const missed=missedSlots(lastKey,now);
+  if(!missed.length)return binData;
+
+  const hist=[...(binData?.history||[])];
+  let nums=binData?.current?.length?binData.current:genGrid();
+
+  for(const slot of missed){
+    const newNums=genGrid(); // auto-random for every missed slot
+    const existingEntry=hist.find(h=>h.slotKey===slot.key);
+    if(!existingEntry){
+      hist.push({slotKey:slot.key,drawTime:slot.time.toISOString(),
+        numbers:JSON.parse(JSON.stringify(newNums)),type:'auto'});
+    }
+    nums=newNums;
+  }
+  if(hist.length>500)hist.splice(0,hist.length-500);
+
+  const latestSlot=missed[missed.length-1];
+  const currentKey=inSess(now)?slotKey(now):latestSlot.key;
+  const updatedBin={
+    current:nums,next:binData?.next?.length?binData.next:genGrid(),
+    currentDrawTime:latestSlot.time.toISOString(),
+    slotKey:currentKey,updatedAt:now.toISOString(),
+    history:hist
+  };
+  await putBin(updatedBin);
+  showToast(`Caught up ${missed.length} missed draw(s).`,false,true);
+  return updatedBin;
+}
+
+/* ════════════════════════════════════════════════════════════════
    SLOT SWAP (admin — single authoritative writer)
-   Uses a swapLock field in the bin so only ONE tab ever writes.
 ════════════════════════════════════════════════════════════════ */
 async function doSwap(now, remote){
   if(swapBusy)return;
   const key=slotKey(now);
   if(!key)return;
 
-  // Atomic lock: read remote, check if another tab already swapped this slot
   const fresh=remote||await getBin();
   if(fresh?.slotKey===key){
-    // Already done by another tab — just adopt the remote state
+    // Another tab already swapped — adopt state
     curNums=fresh.current||curNums;
     nxtNums=fresh.next?.length?fresh.next:genGrid();
     lastSlotKey=key; isDirty=false; setStatus(false);
@@ -564,28 +643,24 @@ async function doSwap(now, remote){
   curNums=incoming; nxtNums=genGrid(); lastSlotKey=key; nxtSlotDt=nextSlot(now);
   isDirty=false; setStatus(false);
 
-  // Archive to history — deduped by slotKey
   const hist=fresh?.history||[];
   const lastEntry=hist[hist.length-1];
   if(!lastEntry||lastEntry.slotKey!==key){
     hist.push({slotKey:key,drawTime:slotDt.toISOString(),
       numbers:JSON.parse(JSON.stringify(curNums)),type:wasManual?'manual':'auto'});
-    if(hist.length>200)hist.splice(0,hist.length-200);
+    if(hist.length>500)hist.splice(0,hist.length-500);
   }
 
-  // Write new state — slotKey acts as the lock so viewers won't re-swap
   await putBin({current:curNums,next:nxtNums,
     currentDrawTime:slotDt.toISOString(),
     slotKey:key,updatedAt:slotDt.toISOString(),history:hist});
 
-  // Update UI
   buildRO(curNums); buildED(nxtNums);
   document.getElementById('cur-slot-t').textContent=fmt(slotDt);
   document.getElementById('nxt-slot-t').textContent=fmt(nextSlot(now));
   document.getElementById('nxt-badge').textContent='Awaiting publish';
   showToast(`Draw advanced to ${fmt(slotDt)}`,false,true);
-
-  swapBusy=false; // release immediately — slotKey lock in bin prevents re-entry
+  swapBusy=false;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -670,7 +745,14 @@ function startTicker(){
 async function initAdmin(){
   const now=new Date();
   nxtSlotDt=nextSlot(now);
-  const data=await getBin();
+  let data=await getBin();
+
+  // ── CATCHUP: fill any slots missed while no browser was open ──
+  if(data?.slotKey){
+    const missed=missedSlots(data.slotKey,now);
+    if(missed.length>0) data=await catchupMissedSlots(data);
+  }
+
   if(data?.current?.length){
     curNums=data.current; nxtNums=data.next?.length?data.next:genGrid();
     lastSlotKey=data.slotKey||slotKey(now);
@@ -679,11 +761,10 @@ async function initAdmin(){
     if(data.updatedAt)document.getElementById('last-pub').textContent='Last: '+new Date(data.updatedAt).toLocaleTimeString();
     if(data.nextScheduledFor)document.getElementById('nxt-badge').textContent='✓ Scheduled for '+fmt(new Date(data.nextScheduledFor));
   } else {
-    curNums=genGrid();nxtNums=genGrid();lastSlotKey=slotKey(now);
+    curNums=genGrid();nxtNums=genGrid();lastSlotKey=slotKey(now)||'bootstrap';
     document.getElementById('cur-slot-t').textContent=fmt(now);
   }
   buildRO(curNums);buildED(nxtNums);setStatus(false);startTicker();
-  // Default date filter: last 7 days
   setLast7();
 }
 
@@ -780,6 +861,118 @@ function buildMiniTable(nums){
   }
   html+='</tbody></table>';
   return html;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PDF EXPORT
+   Uses jsPDF (loaded from CDN) to generate a multi-page PDF
+   with every filtered draw's full 10×10 number grid.
+════════════════════════════════════════════════════════════════ */
+function exportPDF(){
+  if(!window.jspdf){
+    showToast('PDF library loading, please try again in a moment.',true);
+    // Load jsPDF on demand
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=()=>doExportPDF();
+    document.head.appendChild(s);return;
+  }
+  doExportPDF();
+}
+
+function doExportPDF(){
+  if(typeof window.jspdf==='undefined'){showToast('PDF library not loaded yet.',true);return;}
+  const {jsPDF}=window.jspdf;
+
+  // Get currently filtered records
+  const fromStr=document.getElementById('h-from').value;
+  const toStr=document.getElementById('h-to').value;
+  const from=fromStr?new Date(fromStr+'T00:00:00'):null;
+  const to=toStr?new Date(toStr+'T23:59:59'):null;
+  const records=allHistory.filter(h=>{
+    const d=new Date(h.drawTime);
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+
+  if(!records.length){showToast('No draws to export for selected range.',true);return;}
+
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth();
+  const colW=Array(11).fill(0);
+  colW[0]=8; // row label
+  for(let c=1;c<=10;c++)colW[c]=(pw-20-colW[0])/10;
+
+  const cols=['','A','B','C','D','E','F','G','H','I','J'];
+  const rowH=7, headerH=8, topMargin=28, leftMargin=10;
+
+  records.forEach((rec,idx)=>{
+    if(idx>0)doc.addPage();
+    const dt=new Date(rec.drawTime);
+    const dateStr=fmtDate(dt), timeStr=fmt(dt);
+    const typeStr=rec.type==='manual'?'Manually Set':'Auto-Generated';
+
+    // Title bar
+    doc.setFillColor(26,22,64);
+    doc.rect(0,0,pw,20,'F');
+    doc.setTextColor(245,194,0);
+    doc.setFontSize(14);doc.setFont('helvetica','bold');
+    doc.text('Lucky Draw — Draw Report',pw/2,9,{align:'center'});
+    doc.setFontSize(9);doc.setTextColor(180,175,220);
+    doc.text(`${timeStr}  •  ${dateStr}  •  ${typeStr}`,pw/2,16,{align:'center'});
+
+    // Record number
+    doc.setFontSize(8);doc.setTextColor(120,116,154);
+    doc.text(`Draw ${idx+1} of ${records.length}`,pw-leftMargin,16,{align:'right'});
+
+    // Column headers
+    let x=leftMargin;
+    doc.setFillColor(13,11,30);
+    doc.rect(leftMargin,topMargin-headerH,pw-leftMargin*2,headerH,'F');
+    doc.setTextColor(124,109,250);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    for(let c=0;c<11;c++){
+      doc.text(cols[c],x+colW[c]/2,topMargin-headerH/2+2.5,{align:'center'});
+      x+=colW[c];
+    }
+
+    // Grid rows
+    for(let r=0;r<10;r++){
+      const y=topMargin+r*rowH;
+      doc.setFillColor(r%2===0?26:22,r%2===0?22:18,r%2===0?64:56);
+      doc.rect(leftMargin,y,pw-leftMargin*2,rowH,'F');
+      x=leftMargin;
+      // Row number
+      doc.setTextColor(120,116,154);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+      doc.text(String(r+1),x+colW[0]/2,y+rowH/2+2,{align:'center'});
+      x+=colW[0];
+      // Cells
+      doc.setTextColor(232,228,255);doc.setFontSize(8);doc.setFont('courier','bold');
+      for(let c=0;c<10;c++){
+        const val=(rec.numbers[r]||[])[c]||'----';
+        doc.text(val,x+colW[c+1]/2,y+rowH/2+2,{align:'center'});
+        x+=colW[c+1];
+      }
+      // Cell borders
+      x=leftMargin+colW[0];
+      doc.setDrawColor(40,35,80);doc.setLineWidth(0.2);
+      for(let c=0;c<10;c++){
+        doc.rect(x,y,colW[c+1],rowH,'S');
+        x+=colW[c+1];
+      }
+    }
+
+    // Footer line
+    const footY=topMargin+10*rowH+6;
+    doc.setDrawColor(60,52,180);doc.setLineWidth(0.3);
+    doc.line(leftMargin,footY,pw-leftMargin,footY);
+    doc.setFontSize(7);doc.setTextColor(100,96,130);
+    doc.text('Lucky Draw — All results randomly generated for entertainment only.',pw/2,footY+4,{align:'center'});
+  });
+
+  const label=fromStr===toStr&&fromStr?fromStr:`${fromStr||'all'}_to_${toStr||'all'}`;
+  doc.save(`LuckyDraw_Report_${label}.pdf`);
+  showToast(`PDF exported: ${records.length} draw(s).`,false,true);
 }
 
 /* ════════════════════════════════════════════════════════════════
