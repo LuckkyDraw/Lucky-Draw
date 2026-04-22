@@ -161,11 +161,12 @@ footer{text-align:center;margin-top:1.6rem;font-family:var(--M);font-size:11px;
 const LIVE_KEY = '$2a$10$Mvxf/bNruxfcEmuCsPNMNOs6GaNYWEkFs5xrfvD5w/tu6K3Z.UnA2';
 const LIVE_BIN = '69e4a9f9aaba882197157ed4';
 const LIVE_URL = `https://api.jsonbin.io/v3/b/${LIVE_BIN}`;
-const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15;
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* ── TIME ── */
+const DAY_START = 9*60+30, DAY_END = 21*60+30, SLOT = 15, SESS_END = 21*60+45;
+
 const pad  = n => String(n).padStart(2,'0');
 const pad4 = n => String(n).padStart(4,'0');
 function fmt(d){let h=d.getHours(),m=d.getMinutes();const a=h>=12?'PM':'AM';h=h%12||12;return`${pad(h)}:${pad(m)} ${a}`;}
@@ -175,11 +176,11 @@ function fmtDate(d){
 }
 function fmtISO(d){return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
 function mod(d){return d.getHours()*60+d.getMinutes();}
-function inSess(d){const m=mod(d);return m>=DAY_START&&m<DAY_END;}
+function inSess(d){const m=mod(d);return m>=DAY_START&&m<SESS_END;}
 
 function slotKey(d){
   const m=mod(d);
-  if(m<DAY_START||m>=DAY_END)return null;
+  if(m<DAY_START||m>=SESS_END)return null;
   const idx=Math.floor((m-DAY_START)/SLOT);
   const sm=idx*SLOT+DAY_START;
   const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
@@ -189,12 +190,32 @@ function slotKey(d){
 function nextSlot(d){
   const m=mod(d);let nm;
   if(m<DAY_START){nm=DAY_START;}
-  else if(m>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+  else if(m>=SESS_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
   else{
     nm=Math.ceil((m-DAY_START+1)/SLOT)*SLOT+DAY_START;
-    if(nm>=DAY_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
+    if(nm>=SESS_END){const n=new Date(d);n.setDate(n.getDate()+1);n.setHours(9,30,0,0);return n;}
   }
   const n=new Date(d);n.setHours(Math.floor(nm/60),nm%60,0,0);return n;
+}
+
+function missedSlots(lastKey,now){
+  if(!lastKey)return[];
+  const parts=lastKey.split('-');
+  const y=+parts[0],mo=+parts[1]-1,dd=+parts[2];
+  const hh=Math.floor(+parts[3]/100),mm=+parts[3]%100;
+  const lastSlotStart=new Date(y,mo,dd,hh,mm,0,0);
+  const missed=[];
+  let t=new Date(lastSlotStart.getTime()+SLOT*60000);
+  while(t<=now){
+    const m2=t.getHours()*60+t.getMinutes();
+    if(m2>=DAY_START&&m2<=DAY_END){
+      const sk=slotKey(t)||(()=>{const y2=t.getFullYear(),mo2=pad(t.getMonth()+1),dd2=pad(t.getDate());return`${y2}-${mo2}-${dd2}-${pad(Math.floor(m2/60))}${pad(m2%60)}`;})();
+      if(sk&&sk!==lastKey)missed.push({time:new Date(t),key:sk});
+    }
+    t=new Date(t.getTime()+SLOT*60000);
+    if(missed.length>100)break;
+  }
+  return missed;
 }
 
 /* ── GRID ── */
@@ -320,16 +341,50 @@ function applyRemote(data, forceFlash){
   loadHistoryFromData(data);
 }
 
+/* ── CATCHUP: viewer also catches up missed slots ──
+   Both admin and viewer can fill missed history.
+   slotKey deduplication prevents double writes.   */
+async function catchupIfNeeded(data){
+  if(!data?.slotKey)return data;
+  const now=new Date();
+  const missed=missedSlots(data.slotKey,now);
+  if(!missed.length)return data;
+  const hist=[...(data.history||[])];
+  let nums=data.current?.length?data.current:genGrid();
+  for(const slot of missed){
+    const newNums=genGrid();
+    if(!hist.find(h=>h.slotKey===slot.key)){
+      hist.push({slotKey:slot.key,drawTime:slot.time.toISOString(),
+        numbers:JSON.parse(JSON.stringify(newNums)),type:'auto'});
+    }
+    nums=newNums;
+  }
+  if(hist.length>500)hist.splice(0,hist.length-500);
+  const latestSlot=missed[missed.length-1];
+  const currentKey=inSess(now)?slotKey(now):latestSlot.key;
+  const updated={current:nums,next:data.next?.length?data.next:genGrid(),
+    currentDrawTime:latestSlot.time.toISOString(),
+    slotKey:currentKey,updatedAt:now.toISOString(),history:hist};
+  await putBin(updated);
+  return updated;
+}
+
 /* ── INIT ── */
 async function init(){
   const now=new Date(),ins=inSess(now);
   nxtSlotDt=nextSlot(now); setClosed(!ins);
   document.getElementById('nxt-t').textContent=fmt(nxtSlotDt);
-  const data=await getBin();
+  let data=await getBin();
+
+  // Catch up any missed slots (runs even if admin is offline)
+  if(data?.slotKey){
+    const missed=missedSlots(data.slotKey,now);
+    if(missed.length>0) data=await catchupIfNeeded(data);
+  }
+
   if(data?.current?.length){
-    applyRemote(data,true); // force render on page load
+    applyRemote(data,true);
   } else if(ins){
-    // Bootstrap: no data yet, write once so admin can take over
     curNums=genGrid(); nxtNums=genGrid(); curKey=slotKey(now);
     document.getElementById('cur-t').textContent=fmt(now);
     buildTable(curNums,false);
