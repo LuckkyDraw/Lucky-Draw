@@ -382,39 +382,58 @@ function nextSlot(d){
 function allSlotsForDay(date){
   const slots=[];
   let m=DAY_START;
-  while(m<=DAY_END){ // inclusive of 21:30
+  while(m<=DAY_END){ // inclusive of 9:30 PM (DAY_END=21:30)
     const d=new Date(date);d.setHours(Math.floor(m/60),m%60,0,0);
     slots.push(d);m+=SLOT;
   }
   return slots;
 }
 
-/* ── missedSlots: slots that should have fired since lastSlotKey ──
-   Generates history entries for all missed slots automatically.       */
+/* ── makeSlotKey: build key from a Date at exact slot boundary ── */
+function makeSlotKey(d){
+  const y=d.getFullYear(),mo=pad(d.getMonth()+1),dd=pad(d.getDate());
+  const hh=pad(d.getHours()),mm=pad(d.getMinutes());
+  return`${y}-${mo}-${dd}-${hh}${mm}`;
+}
+
+/* ── parseSlotKey: parse "YYYY-MM-DD-HHmm" → Date ── */
+function parseSlotKey(key){
+  if(!key)return null;
+  const p=key.split('-'); // ["YYYY","MM","DD","HHmm"]
+  if(p.length<4)return null;
+  const y=+p[0],mo=+p[1]-1,dd=+p[2];
+  const hhmm=p[3].padStart(4,'0');
+  const hh=+hhmm.slice(0,2),mm=+hhmm.slice(2,4);
+  return new Date(y,mo,dd,hh,mm,0,0);
+}
+
+/* ── missedSlots: all session slots from lastKey (exclusive) up to now ──
+   Walks forward 15 min at a time, only includes slots within 9:30AM–9:30PM.
+   Caps at 7 days of slots (7×49=343 max) to stay safe.                    */
 function missedSlots(lastKey, now){
   if(!lastKey)return[];
-  // Parse last key: "YYYY-MM-DD-HHmm"
-  const parts=lastKey.split('-');
-  const y=+parts[0],mo=+parts[1]-1,dd=+parts[2];
-  const hh=Math.floor(+parts[3]/100),mm=+parts[3]%100;
-  const lastSlotStart=new Date(y,mo,dd,hh,mm,0,0);
+  const lastStart=parseSlotKey(lastKey);
+  if(!lastStart)return[];
   const missed=[];
-  // Walk forward from lastSlotStart+SLOT to now, collecting all fired slots
-  let t=new Date(lastSlotStart.getTime()+SLOT*60000);
+  let t=new Date(lastStart.getTime()+SLOT*60000);
+  const sevenDaysAgo=new Date(now.getTime()-7*24*60*60*1000);
   while(t<=now){
+    if(t<sevenDaysAgo){t=new Date(t.getTime()+SLOT*60000);continue;}
     const m2=t.getHours()*60+t.getMinutes();
-    if(m2>=DAY_START&&m2<=DAY_END){ // include 9:30 PM
-      const sk=slotKey(t)||(()=>{
-        // For exactly DAY_END we build key manually
-        const y2=t.getFullYear(),mo2=pad(t.getMonth()+1),dd2=pad(t.getDate());
-        return `${y2}-${mo2}-${dd2}-${pad(Math.floor(m2/60))}${pad(m2%60)}`;
-      })();
-      if(sk&&sk!==lastKey)missed.push({time:new Date(t),key:sk});
+    if(m2>=DAY_START&&m2<=DAY_END){ // 9:30 AM to 9:30 PM inclusive
+      const sk=makeSlotKey(t);
+      if(sk!==lastKey)missed.push({time:new Date(t),key:sk});
     }
     t=new Date(t.getTime()+SLOT*60000);
-    if(missed.length>100)break; // safety cap
+    if(missed.length>343)break; // 7 days × 49 slots
   }
   return missed;
+}
+
+/* ── pruneHistory: keep only last 7 days of entries ── */
+function pruneHistory(hist){
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);cutoff.setHours(0,0,0,0);
+  return hist.filter(h=>new Date(h.drawTime)>=cutoff);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -583,30 +602,38 @@ async function publishNext(){
 async function catchupMissedSlots(binData){
   const now=new Date();
   const lastKey=binData?.slotKey||null;
-  if(!lastKey)return binData; // nothing to catch up
+  if(!lastKey)return binData;
   const missed=missedSlots(lastKey,now);
   if(!missed.length)return binData;
 
-  const hist=[...(binData?.history||[])];
+  let hist=[...(binData?.history||[])];
   let nums=binData?.current?.length?binData.current:genGrid();
+  const existingKeys=new Set(hist.map(h=>h.slotKey));
 
   for(const slot of missed){
-    const newNums=genGrid(); // auto-random for every missed slot
-    const existingEntry=hist.find(h=>h.slotKey===slot.key);
-    if(!existingEntry){
+    const newNums=genGrid();
+    if(!existingKeys.has(slot.key)){
       hist.push({slotKey:slot.key,drawTime:slot.time.toISOString(),
         numbers:JSON.parse(JSON.stringify(newNums)),type:'auto'});
+      existingKeys.add(slot.key);
     }
     nums=newNums;
   }
-  if(hist.length>500)hist.splice(0,hist.length-500);
+
+  // Prune to 7 days only
+  hist=pruneHistory(hist);
+  // Sort oldest→newest
+  hist.sort((a,b)=>new Date(a.drawTime)-new Date(b.drawTime));
 
   const latestSlot=missed[missed.length-1];
-  const currentKey=inSess(now)?slotKey(now):latestSlot.key;
+  const currentKey=inSess(now)?makeSlotKey(new Date(now.getFullYear(),now.getMonth(),now.getDate(),Math.floor((Math.floor((mod(now)-DAY_START)/SLOT)*SLOT+DAY_START)/60),(Math.floor((mod(now)-DAY_START)/SLOT)*SLOT+DAY_START)%60,0,0)):latestSlot.key;
+
   const updatedBin={
-    current:nums,next:binData?.next?.length?binData.next:genGrid(),
+    current:nums,
+    next:binData?.next?.length?binData.next:genGrid(),
     currentDrawTime:latestSlot.time.toISOString(),
-    slotKey:currentKey,updatedAt:now.toISOString(),
+    slotKey:currentKey,
+    updatedAt:now.toISOString(),
     history:hist
   };
   await putBin(updatedBin);
@@ -619,12 +646,11 @@ async function catchupMissedSlots(binData){
 ════════════════════════════════════════════════════════════════ */
 async function doSwap(now, remote){
   if(swapBusy)return;
-  const key=slotKey(now);
+  const key=slotKey(now)||makeSlotKey(now);
   if(!key)return;
 
   const fresh=remote||await getBin();
   if(fresh?.slotKey===key){
-    // Another tab already swapped — adopt state
     curNums=fresh.current||curNums;
     nxtNums=fresh.next?.length?fresh.next:genGrid();
     lastSlotKey=key; isDirty=false; setStatus(false);
@@ -643,13 +669,14 @@ async function doSwap(now, remote){
   curNums=incoming; nxtNums=genGrid(); lastSlotKey=key; nxtSlotDt=nextSlot(now);
   isDirty=false; setStatus(false);
 
-  const hist=fresh?.history||[];
-  const lastEntry=hist[hist.length-1];
-  if(!lastEntry||lastEntry.slotKey!==key){
+  let hist=[...(fresh?.history||[])];
+  const existingKeys=new Set(hist.map(h=>h.slotKey));
+  if(!existingKeys.has(key)){
     hist.push({slotKey:key,drawTime:slotDt.toISOString(),
       numbers:JSON.parse(JSON.stringify(curNums)),type:wasManual?'manual':'auto'});
-    if(hist.length>500)hist.splice(0,hist.length-500);
   }
+  hist=pruneHistory(hist);
+  hist.sort((a,b)=>new Date(a.drawTime)-new Date(b.drawTime));
 
   await putBin({current:curNums,next:nxtNums,
     currentDrawTime:slotDt.toISOString(),
@@ -777,9 +804,12 @@ async function loadHistory(){
   const list=document.getElementById('hist-list');
   list.innerHTML='<div class="hist-loading">Loading history…</div>';
   const data=await getBin();
-  allHistory=(data?.history||[]).slice().reverse(); // newest first
+  // Keep only last 7 days, newest first
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);cutoff.setHours(0,0,0,0);
+  const raw=(data?.history||[]).filter(h=>new Date(h.drawTime)>=cutoff);
+  allHistory=raw.slice().reverse(); // newest first for display
   if(allHistory.length===0){
-    list.innerHTML='<div class="hist-empty">No draw history yet. History is recorded automatically at each 15-min boundary.</div>';
+    list.innerHTML='<div class="hist-empty">No draw history for the last 7 days. History is recorded automatically at each 15-min boundary.</div>';
     updateSummary([]);return;
   }
   applyFilter();
